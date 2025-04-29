@@ -22,19 +22,22 @@ export default function TodolistPage() {
     return (
         <ThemeProvider theme={theme}>
             <div id='backgroundContainer' className='flex w-screen h-screen bg-[#f0f0f0] text-gray-800 font-sans'> 
-                <div id='contentContainer' className='w-4/5 bg-blue-300 mx-auto'>
-                    <div id='header' className='flex w-auto bg-stone-300 gap-2 p-2 h-20'>
-                        <div className='w-1/3 md:w-1/6 bg-purple-500'>
-                            <p>To Dos</p>
+                <div id='contentContainer' className='w-4/5 mx-auto'>
+                    <div id='header' className='flex w-auto h-20'>
+                        <div className='flex w-1/3 md:w-1/6 items-end'>
+                            <p className='text-3xl'>To-Dos</p>
                         </div>
-                        <div className='w-1/3 md:w-1/6 bg-purple-500'>
-                            <p>Add</p>
+                        <div className='flex w-1/3 md:w-1/6 items-end'>
+                            <p className='text-xl'>Add</p>
                         </div>
-                        <div className='w-1/3 md:w-1/6 bg-purple-500 ml-auto'>
-                            <p>Search</p>
+                        <div className='flex w-1/3 md:w-1/6 ml-auto items-end'>
+                            <p className='text-xl'>Search</p>
                         </div>
                     </div>
-                    <div id='content' className='min-h-30 bg-gray-50 p-2'>
+
+                    <Divider />
+
+                    <div id='content' className='min-h-30 bg-gray-50'>
                         <List className='bg-cyan-300'>
                             <ListItem disablePadding>
                                 <ListItemButton>
