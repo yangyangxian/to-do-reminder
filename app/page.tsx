@@ -27,24 +27,23 @@ export default function TodolistPage() {
         <ThemeProvider theme={theme}>
             <div id='backgroundContainer' className='flex w-screen h-screen bg-[#f0f0f0] text-gray-800 font-sans'> 
                 <div id='contentContainer' className='w-4/5 mx-auto'>
-
                     <div id='header' className='flex w-auto h-20 p-3'>
-                        <div className='flex w-1/3 md:w-1/6 items-end'>
+                        <div className='flex md:w-1/9 items-end'>
                             <p className='text-3xl'>To-Dos</p>
                         </div>
-                        <div className='flex w-1/3 md:w-1/6 items-end'>
+                        <div className='flex mt-auto ml-auto items-center'>
                             <Button color='secondary' size='small' variant="outlined">Add to-do</Button>
-                        </div>
-                        <div className='flex w-1/3 md:w-1/6 ml-auto items-end'>
                             <YTextField
-                                //label="Search"
                                 placeholder="Search"
                                 value={value}
                                 onChange={(e) => setValue(e.target.value)}
                                 //error={value === "" ? "This field is required" : ""}
-                                className="w-1/2"
+                                className="ml-3"
                             />
                         </div>
+                        {/* <div className='flex w-1/3 md:w-1/6 items-end'>
+
+                        </div> */}
                     </div>
 
                     <Divider />
