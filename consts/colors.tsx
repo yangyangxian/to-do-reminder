@@ -1,0 +1,1 @@
+export const secondaryColor: string = "#9C27B0";
