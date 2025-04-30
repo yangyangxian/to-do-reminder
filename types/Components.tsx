@@ -20,7 +20,7 @@ export const YTextField: React.FC<CustomTextFieldProps> = ({
       )}
       <input
         {...props}
-        className={`h-[35px] border bg-gray-200 border-gray-300 rounded-md px-3 py-2 
+        className={`h-[35px] bg-gray-200 border-gray-300 rounded-md px-3 py-2 
           text-sm focus:border-purple-500 focus:outline-none focus:ring-0.5 focus:ring-purple-500 ${className}`}
       />
       {error && (
