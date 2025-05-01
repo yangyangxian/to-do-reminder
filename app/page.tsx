@@ -12,6 +12,7 @@ import { YTextField } from '@/types/Components';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 
 const theme = createTheme({
     typography: {
@@ -20,7 +21,7 @@ const theme = createTheme({
     },
 });
 
-const todolist = [
+let todolist = [
     {
         id: 1,
         date: "2025-05-01",
@@ -35,11 +36,17 @@ const todolist = [
     },
     {
         id: 3,
-        date: "2025-05-04",
+        date: "2025-04-04",
         summary: "To buy a new dumbbell",
         status: 'not-started',
     },
 ];
+
+todolist.sort((a, b) => {
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    return dateA.getTime() - dateB.getTime();
+});
 
 export default function TodolistPage() {
     const [value, setValue] = useState("");
@@ -67,26 +74,27 @@ export default function TodolistPage() {
                         </div>
                     </div>
 
-                    <div id='content' className='min-h-30 border-gray-300'>
+                    <div id='content' className='min-h-30 border-gray-300 text-[13px] md:text-[15px]'>
                         <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'>
-                            <ListItem className='h-10 bg-gray-200 font-normal rounded-t-lg'>
-                                <p className='w-1/9'>Date</p>
-                                <p className='mr-5 w-1/3'>Summary</p>
+                            <ListItem className='h-10 bg-gray-200 rounded-t-lg'>
+                                <p className='w-1/6 md:w-1/6 lg:w-1/8'>Due Date</p>
+                                <p className='w-1/2 lg:w-2/5'>Summary</p>
                                 <p className='w-1/10'>Status</p>
                             </ListItem>
                             {todolist.map((item) => (
                                 <div>
                                     <Divider className='border-gray-300' />
-                                    <ListItem key={item.id} disablePadding className='font-extralight border-gray-300'>
+                                    <ListItem key={item.id} disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-14'>
-                                            <p className='w-1/9'>{item.date}</p>
-                                            <p className='mr-5 w-1/3'>{item.summary}</p>
+                                            <p className='w-1/6 md:w-1/6 lg:w-1/8'>{item.date}</p>
+                                            <p className='w-1/2 lg:w-2/5'>{item.summary}</p>
                                             {/* <ListItemText className='w-1/10' primary={item.date} />
                                             <ListItemText className='w-1/5'primary={item.summary} /> */}
                                             <ListItemIcon className='w-1/10'>
                                                 {item.status === 'completed' && <CheckCircleOutlineRoundedIcon className="text-green-500" />}
                                                 {item.status === 'in-progress' && <IncompleteCircleIcon className="text-yellow-500" />}
-                                                {item.status === 'not-started' && <ChecklistIcon className="text-gray-500" />}
+                                                {item.status === 'not-started' && Date.parse(item.date) > Date.now() &&  <ChecklistIcon className="text-gray-500" />}
+                                                {item.status === 'not-started' && Date.parse(item.date) <= Date.now() && <ErrorOutlineRoundedIcon className="text-red-500" />}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
