@@ -76,20 +76,18 @@ export default function TodolistPage() {
 
                     <div id='content' className='min-h-30 border-gray-300 text-[13px] md:text-[15px]'>
                         <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'>
-                            <ListItem className='h-10 bg-gray-200 rounded-t-lg'>
+                            <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
                                 <p className='w-1/6 md:w-1/6 lg:w-1/8'>Due Date</p>
                                 <p className='w-1/2 lg:w-2/5'>Summary</p>
                                 <p className='w-1/10'>Status</p>
                             </ListItem>
                             {todolist.map((item) => (
-                                <div>
+                                <div key={item.id}>
                                     <Divider className='border-gray-300' />
-                                    <ListItem key={item.id} disablePadding className='border-gray-300 font-light'>
+                                    <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-14'>
                                             <p className='w-1/6 md:w-1/6 lg:w-1/8'>{item.date}</p>
                                             <p className='w-1/2 lg:w-2/5'>{item.summary}</p>
-                                            {/* <ListItemText className='w-1/10' primary={item.date} />
-                                            <ListItemText className='w-1/5'primary={item.summary} /> */}
                                             <ListItemIcon className='w-1/10'>
                                                 {item.status === 'completed' && <CheckCircleOutlineRoundedIcon className="text-green-500" />}
                                                 {item.status === 'in-progress' && <IncompleteCircleIcon className="text-yellow-500" />}
