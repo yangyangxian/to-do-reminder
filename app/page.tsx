@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -20,6 +20,17 @@ const theme = createTheme({
         fontFamily: 'inherit',       
     },
 });
+
+function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4)
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+    const rawData = atob(base64)
+    return Uint8Array.from(
+      [...rawData].map(char => char.charCodeAt(0))
+    )
+  }
 
 let todolist = [
     {
@@ -50,6 +61,47 @@ todolist.sort((a, b) => {
 
 export default function TodolistPage() {
     const [value, setValue] = useState("");
+    const [subscribed, setSubscribed] = useState(false);
+    const [subscription, setSubscription] = useState<PushSubscription | null>(null);
+
+    const handleSubscribe = async () => {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(
+              process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+            )
+          });
+          // TODO: 将 sub 发送到后端保存
+          console.log('订阅成功：', sub);
+          setSubscribed(true);
+          setSubscription(sub);
+        } catch (err) {
+          console.error('订阅失败：', err);
+        }
+      };
+
+      const handleSend = async () => {
+
+        try {
+            const response = await fetch('/api/send-notification', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(subscription), // 订阅对象
+            });
+        
+            if (response.ok) {
+              console.log('推送成功');
+            } else {
+              console.error(response);
+            }
+          } catch (error) {
+            console.error('请求失败:', error);
+          }
+      }
     
     return (
         <ThemeProvider theme={theme}>
@@ -60,7 +112,10 @@ export default function TodolistPage() {
                         <div className='flex items-center'>
                             <p className='text-3xl'>To-Dos</p>
                             <div className='ml-5'>
-                                <Button color='secondary' size='small' variant="outlined">Add a to-do</Button>
+                                <Button className='shadow-lg shadow-purple-500/8' color='secondary' size='small' variant="outlined" onClick={handleSubscribe}>Subsribe</Button>
+                            </div>
+                            <div className='ml-5'>
+                                <Button className='shadow-lg shadow-purple-500/8' color='secondary' size='small' variant="outlined" onClick={handleSend}>Send Notification</Button>
                             </div>
                         </div>
                         <div className='flex ml-auto'>
@@ -90,9 +145,9 @@ export default function TodolistPage() {
                                             <p className='w-1/2 lg:w-2/5'>{item.summary}</p>
                                             <ListItemIcon className='w-1/10'>
                                                 {item.status === 'completed' && <CheckCircleOutlineRoundedIcon className="text-green-500" />}
-                                                {item.status === 'in-progress' && <IncompleteCircleIcon className="text-yellow-500" />}
+                                                {item.status === 'in-progress' && Date.parse(item.date) > Date.now() && <IncompleteCircleIcon className="text-yellow-500" />}
                                                 {item.status === 'not-started' && Date.parse(item.date) > Date.now() &&  <ChecklistIcon className="text-gray-500" />}
-                                                {item.status === 'not-started' && Date.parse(item.date) <= Date.now() && <ErrorOutlineRoundedIcon className="text-red-500" />}
+                                                {item.status !== 'completed' && Date.parse(item.date) <= Date.now() && <ErrorOutlineRoundedIcon className="text-red-500" />}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
