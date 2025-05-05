@@ -7,7 +7,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Button } from '@mui/material';
+import { Button, Switch } from '@mui/material';
 import { YTextField } from '@/types/Components';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
@@ -59,29 +59,66 @@ todolist.sort((a, b) => {
     return dateA.getTime() - dateB.getTime();
 });
 
+function initSW() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js',{ scope: '/' })
+            .then((registration) => {
+                console.log('Service Worker registered with scope:', registration.scope);
+            })
+            .catch((error) => {
+                console.error('Service Worker registration failed:', error);
+            });
+    } else {
+        console.error('Service Worker is not supported in this browser.');
+    }
+}
+
 export default function TodolistPage() {
     const [value, setValue] = useState("");
     const [subscribed, setSubscribed] = useState(false);
     const [subscription, setSubscription] = useState<PushSubscription | null>(null);
 
-    const handleSubscribe = async () => {
+    initSW();
+    
+    const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
-          console.log('VAPID 公钥：', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
-          await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-          const registration = await navigator.serviceWorker.ready;
-          console.log('SW 已激活，scope:', registration.scope);
-          const sub = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(
-              process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-            )
-          });
-          // TODO: 将 sub 发送到后端保存
-          console.log('订阅成功：', sub);
-          setSubscribed(true);
-          setSubscription(sub);
+            setSubscribed(event.target.checked);
+            if (subscribed) {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.getSubscription();
+                if (subscription) {
+                    await subscription.unsubscribe();
+                    console.log('取消订阅成功');
+                    setSubscribed(false);
+                    setSubscription(null);
+                } else {
+                    console.log('没有找到订阅');
+                }
+            } else {
+                if (subscription) {
+                    console.log('已经订阅');
+                    setSubscribed(true);
+                    setSubscription(subscription);
+                    return;
+                } else {
+                    const registration = await navigator.serviceWorker.ready;
+                    console.log('SW 已激活，scope:', registration.scope);
+                    
+                    const sub = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(
+                            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+                        )
+                    });
+
+                    setSubscribed(true);
+                    setSubscription(sub);
+
+                    console.log('订阅成功：', sub);
+                }
+            }
         } catch (err) {
-          console.error('订阅失败：', err);
+            console.error('订阅失败：', err);
         }
       };
 
@@ -119,10 +156,11 @@ export default function TodolistPage() {
                         <div className='flex items-center'>
                             <p className='text-3xl'>To-Dos</p>
                             <div className='ml-5'>
-                                <Button className='shadow-lg shadow-purple-500/8' color='secondary' size='small' variant="outlined" onClick={handleSubscribe}>Subsribe</Button>
+                                <Button color='secondary' size='small' variant="outlined" onClick={handleSend}>Send Notification</Button>
                             </div>
-                            <div className='ml-5'>
-                                <Button className='shadow-lg shadow-purple-500/8' color='secondary' size='small' variant="outlined" onClick={handleSend}>Send Notification</Button>
+                            <div className='ml-5'>                              
+                                <Switch color='secondary' checked={subscribed}
+                                    onChange={handleSubscribe}></Switch>Allow Notification 
                             </div>
                         </div>
                         <div className='flex ml-auto'>
