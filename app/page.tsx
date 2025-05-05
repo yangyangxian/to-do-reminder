@@ -66,6 +66,7 @@ export default function TodolistPage() {
 
     const handleSubscribe = async () => {
         try {
+          console.log('VAPID 公钥：', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
           const registration = await navigator.serviceWorker.ready;
           const sub = await registration.pushManager.subscribe({
             userVisibleOnly: true,
@@ -83,7 +84,11 @@ export default function TodolistPage() {
       };
 
       const handleSend = async () => {
-
+        if (!subscription) {
+            alert('请先允许通知！');
+            return;
+          }
+        
         try {
             const response = await fetch('/api/send-notification', {
               method: 'POST',
