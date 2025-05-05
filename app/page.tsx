@@ -67,7 +67,7 @@ export default function TodolistPage() {
     const handleSubscribe = async () => {
         try {
           console.log('VAPID 公钥：', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
-          const registration = await navigator.serviceWorker.ready;
+          const registration = await navigator.serviceWorker.register('/sw.js');
           console.log('SW 已激活，scope:', registration.scope);
           const sub = await registration.pushManager.subscribe({
             userVisibleOnly: true,
