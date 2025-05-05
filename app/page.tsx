@@ -73,12 +73,12 @@ function initSW() {
     }
 }
 
+initSW();
+
 export default function TodolistPage() {
     const [value, setValue] = useState("");
     const [subscribed, setSubscribed] = useState(false);
     const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-
-    initSW();
     
     const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
