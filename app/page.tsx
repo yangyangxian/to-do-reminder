@@ -68,6 +68,7 @@ export default function TodolistPage() {
         try {
           console.log('VAPID 公钥：', process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY);
           const registration = await navigator.serviceWorker.ready;
+          console.log('SW 已激活，scope:', registration.scope);
           const sub = await registration.pushManager.subscribe({
             userVisibleOnly: true,
             applicationServerKey: urlBase64ToUint8Array(
