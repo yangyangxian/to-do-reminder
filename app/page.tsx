@@ -60,6 +60,8 @@ todolist.sort((a, b) => {
 });
 
 function initSW() {
+    if (typeof window === 'undefined') return; // Ensure this runs only in the browser
+    
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js',{ scope: '/' })
             .then((registration) => {
