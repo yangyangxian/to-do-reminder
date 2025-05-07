@@ -84,70 +84,74 @@ export default function TodolistPage() {
     
     const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
-            setSubscribed(event.target.checked);
-            if (subscribed) {
+            var checked = event.target.checked;
+            if (!checked) {                
                 const registration = await navigator.serviceWorker.ready;
                 const subscription = await registration.pushManager.getSubscription();
                 if (subscription) {
                     await subscription.unsubscribe();
-                    console.log('取消订阅成功');
-                    setSubscribed(false);
+                    console.log('Subsritption unsubscribed');
                     setSubscription(null);
-                } else {
-                    console.log('没有找到订阅');
+                } 
+                else 
+                {
+                    console.log('No subscription found');
                 }
-            } else {
+                setSubscribed(checked);
+            } else {  
                 if (subscription) {
-                    console.log('已经订阅');
-                    setSubscribed(true);
-                    setSubscription(subscription);
-                    return;
-                } else {
-                    const registration = await navigator.serviceWorker.ready;
-                    console.log('SW 已激活，scope:', registration.scope);
-                    
-                    const sub = await registration.pushManager.subscribe({
-                        userVisibleOnly: true,
-                        applicationServerKey: urlBase64ToUint8Array(
-                            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-                        )
-                    });
-
-                    setSubscribed(true);
-                    setSubscription(sub);
-
-                    console.log('订阅成功：', sub);
+                    console.log('Already has subscription', subscription);
+                    setSubscribed(checked);
+                } 
+                else 
+                {
+                    try {
+                        const registration = await navigator.serviceWorker.ready;
+                        const sub = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(
+                                process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+                            )
+                        });
+    
+                        setSubscription(sub);
+                        setSubscribed(checked);
+    
+                        console.log('Subscribed successfully', sub);
+                    } catch (err) {
+                        alert('Failed to get subscription!');   
+                    }                    
                 }
             }
         } catch (err) {
-            console.error('订阅失败：', err);
+            console.error('Action failed', err);
         }
-      };
+    };
 
-      const handleSend = async () => {
+    const handleSend = async () => {
         if (!subscription) {
-            alert('请先允许通知！');
+            alert('Please enable notification at first！');
             return;
-          }
+        }
         
         try {
             const response = await fetch('/api/send-notification', {
-              method: 'POST',
-              headers: {
+                method: 'POST',
+                headers: {
                 'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(subscription), // 订阅对象
+                },
+                body: JSON.stringify(subscription),
             });
         
             if (response.ok) {
-              console.log('推送成功');
+                console.log('Push request sent successfully!');
             } else {
-              console.error(response);
+                console.error(response);
             }
-          } catch (error) {
-            console.error('请求失败:', error);
-          }
-      }
+        } catch (error) {
+            console.error('Push request failed:', error);
+        }
+    }
     
     return (
         <ThemeProvider theme={theme}>
