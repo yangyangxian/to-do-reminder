@@ -32,33 +32,6 @@ function urlBase64ToUint8Array(base64String: string) {
     )
   }
 
-let todolist = [
-    {
-        id: 1,
-        date: "2025-05-01",
-        summary: "To merge the code into the main branch",
-        status: 'completed',
-    },
-    {
-        id: 2,
-        date: "2025-05-03",
-        summary: "To complete add functionality to the page",
-        status: 'in-progress',
-    },
-    {
-        id: 3,
-        date: "2025-04-04",
-        summary: "To buy a new dumbbell",
-        status: 'not-started',
-    },
-];
-
-todolist.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateA.getTime() - dateB.getTime();
-});
-
 function initSW() {
     if (typeof window === 'undefined') return; // Ensure this runs only in the browser
     
@@ -81,7 +54,23 @@ export default function TodolistPage() {
     const [value, setValue] = useState("");
     const [subscribed, setSubscribed] = useState(false);
     const [subscription, setSubscription] = useState<PushSubscription | null>(null);
+    const [toDos, setToDos] = useState<Array<any>>([]); 
     
+    useEffect(() => {
+        fetch('/api/todos')
+        .then((res) => res.json())
+            .then((data) => {
+                var todos = data.data;
+                todos.sort((a: { DueDate: Date; }, b: { DueDate: Date; }) => {
+                    const dateA = new Date(a.DueDate);
+                    const dateB = new Date(b.DueDate);
+                    return dateA.getTime() - dateB.getTime();
+                });
+                setToDos(todos);
+                console.log(data);
+            })
+    }, []);
+
     const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
             var checked = event.target.checked;
@@ -184,21 +173,21 @@ export default function TodolistPage() {
                         <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'>
                             <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
                                 <p className='w-1/6 md:w-1/6 lg:w-1/8'>Due Date</p>
-                                <p className='w-1/2 lg:w-2/5'>Summary</p>
+                                <p className='w-1/2'>Summary</p>
                                 <p className='w-1/10'>Status</p>
                             </ListItem>
-                            {todolist.map((item) => (
+                            {toDos.map((item) => (
                                 <div key={item.id}>
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-14'>
-                                            <p className='w-1/6 md:w-1/6 lg:w-1/8'>{item.date}</p>
-                                            <p className='w-1/2 lg:w-2/5'>{item.summary}</p>
+                                            <p className='w-1/6 md:w-1/6 lg:w-1/8'>{item.DueDate}</p>
+                                            <p className='w-1/2'>{item.Summary}</p>
                                             <ListItemIcon className='w-1/10'>
-                                                {item.status === 'completed' && <CheckCircleOutlineRoundedIcon className="text-green-500" />}
-                                                {item.status === 'in-progress' && Date.parse(item.date) > Date.now() && <IncompleteCircleIcon className="text-yellow-500" />}
-                                                {item.status === 'not-started' && Date.parse(item.date) > Date.now() &&  <ChecklistIcon className="text-gray-500" />}
-                                                {item.status !== 'completed' && Date.parse(item.date) <= Date.now() && <ErrorOutlineRoundedIcon className="text-red-500" />}
+                                                {item.Status === 'done' && <CheckCircleOutlineRoundedIcon className="text-green-500" />}
+                                                {item.Status === 'inprogress' && Date.parse(item.date) > Date.now() && <IncompleteCircleIcon className="text-yellow-500" />}
+                                                {item.Status === 'notstarted' && Date.parse(item.date) > Date.now() &&  <ChecklistIcon className="text-gray-500" />}
+                                                {item.Status !== 'done' && Date.parse(item.date) <= Date.now() && <ErrorOutlineRoundedIcon className="text-red-500" />}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
