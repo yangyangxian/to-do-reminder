@@ -50,10 +50,11 @@ function initSW() {
 initSW();
 
 export default function TodolistPage() {
-    const [value, setValue] = useState("");
+    const [serchValue, setSerchValue] = useState("");
     const [subscribed, setSubscribed] = useState(false);
     const [subscription, setSubscription] = useState<PushSubscription | null>(null);
-    const [toDos, setToDos] = useState<Array<any>>([]); 
+    const [toDos, setToDos] = useState<Array<any>>([]);
+    const [filteredToDos, setfilteredToDos] = useState<Array<any>>([]);
     
     useEffect(() => {
         fetch('/api/todos')
@@ -69,6 +70,14 @@ export default function TodolistPage() {
                 console.log(data);
             })
     }, []);
+
+    useEffect(() => {
+        const lowercased = serchValue.toLowerCase();
+        const newList = toDos.filter(item =>
+          item.Summary.toLowerCase().includes(lowercased)
+        );
+        setfilteredToDos(newList);
+    }, [serchValue, toDos]);
 
     const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
@@ -155,8 +164,8 @@ export default function TodolistPage() {
                             <div className='ml-5'>                              
                                 <YTextField
                                     placeholder="Search"
-                                    value={value}
-                                    onChange={(e) => setValue(e.target.value)}
+                                    value={serchValue}
+                                    onChange={(e) => setSerchValue(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -173,7 +182,7 @@ export default function TodolistPage() {
                                 <p className='w-1/2 2xl:w-2/5'>Summary</p>
                                 <p className='w-1/10'>Status</p>
                             </ListItem>
-                            {toDos.map((item) => (
+                            {filteredToDos.map((item) => (
                                 <div key={item.id}>
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
