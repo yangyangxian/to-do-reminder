@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -149,31 +148,29 @@ export default function TodolistPage() {
                     
                     <div id='header' className='flex w-auto h-20 p-1 mb-5 items-end'>
                         <div className='flex items-center'>
-                            <p className='text-3xl'>To-Dos</p>
+                            <p className='text-xl md:text-3xl'>To-Dos</p>
                             <div className='ml-5'>
                                 <Button color='secondary' size='small' variant="outlined" onClick={handleSend}>Send Notification</Button>
                             </div>
                             <div className='ml-5'>                              
-                                <Switch color='secondary' checked={subscribed}
-                                    onChange={handleSubscribe}></Switch>Allow Notification 
+                                <YTextField
+                                    placeholder="Search"
+                                    value={value}
+                                    onChange={(e) => setValue(e.target.value)}
+                                />
                             </div>
                         </div>
-                        <div className='flex ml-auto'>
-                            <YTextField
-                                placeholder="Search"
-                                value={value}
-                                onChange={(e) => setValue(e.target.value)}
-                                //error={value === "" ? "This field is required" : ""}
-                                //className='ml-5'
-                            />
+                        <div className='flex ml-auto items-center'>
+                            <Switch color='secondary' checked={subscribed}
+                                    onChange={handleSubscribe}></Switch><p className='text-[12px] lg:text-[15px]'>Allow Notification</p>
                         </div>
                     </div>
 
-                    <div id='content' className='min-h-30 border-gray-300 text-[13px] md:text-[15px]'>
+                    <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>
                         <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'>
                             <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
-                                <p className='w-1/6 md:w-1/6 lg:w-1/8'>Due Date</p>
-                                <p className='w-1/2'>Summary</p>
+                                <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
+                                <p className='w-1/2 2xl:w-2/5'>Summary</p>
                                 <p className='w-1/10'>Status</p>
                             </ListItem>
                             {toDos.map((item) => (
@@ -181,13 +178,13 @@ export default function TodolistPage() {
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-14'>
-                                            <p className='w-1/6 md:w-1/6 lg:w-1/8'>{item.DueDate}</p>
-                                            <p className='w-1/2'>{item.Summary}</p>
-                                            <ListItemIcon className='w-1/10'>
-                                                {item.Status === 'done' && <CheckCircleOutlineRoundedIcon className="text-green-500" />}
-                                                {item.Status === 'inprogress' && Date.parse(item.date) > Date.now() && <IncompleteCircleIcon className="text-yellow-500" />}
-                                                {item.Status === 'notstarted' && Date.parse(item.date) > Date.now() &&  <ChecklistIcon className="text-gray-500" />}
-                                                {item.Status !== 'done' && Date.parse(item.date) <= Date.now() && <ErrorOutlineRoundedIcon className="text-red-500" />}
+                                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>{item.DueDate}</p>
+                                            <p className='w-1/2 2xl:w-2/5'>{item.Summary}</p>
+                                            <ListItemIcon className='w-1/10 text-[12px]'>
+                                                {item.Status === 'done' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Done</p></div>}
+                                                {item.Status === 'inprogress' && Date.parse(item.DueDate) > Date.now() &&  <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
+                                                {item.Status === 'notstarted' && Date.parse(item.DueDate) > Date.now() &&  <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
+                                                {item.Status !== 'done' && Date.parse(item.DueDate) <= Date.now() && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
