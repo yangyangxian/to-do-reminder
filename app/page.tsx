@@ -57,8 +57,7 @@ export default function TodolistPage() {
     const [filteredToDos, setfilteredToDos] = useState<Array<any>>([]);
     
     useEffect(() => {
-        fetch('/api/todos')
-        .then((res) => res.json())
+        fetch('/api/todos').then((res) => res.json())
             .then((data) => {
                 var todos = data.data;
                 todos.sort((a: { DueDate: Date; }, b: { DueDate: Date; }) => {
@@ -68,6 +67,13 @@ export default function TodolistPage() {
                 });
                 setToDos(todos);
                 console.log(data);
+            })
+
+        fetch('/api/usersettings').then((res) => res.json())
+            .then((data) => {
+                var userSettings = data.data;
+                console.log(userSettings);
+                setSubscribed(userSettings.AllowNotification);
             })
     }, []);
 
