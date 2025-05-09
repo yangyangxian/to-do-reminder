@@ -89,10 +89,7 @@ export default function TodolistPage() {
         try {
             var checked = event.target.checked;
             if (!checked) {                
-                const registration = await navigator.serviceWorker.ready;
-                const subscription = await registration.pushManager.getSubscription();
                 if (subscription) {
-                    await subscription.unsubscribe();
                     console.log('Subsritption unsubscribed');
                     setSubscription(null);
                 } 
@@ -110,12 +107,17 @@ export default function TodolistPage() {
                 {
                     try {
                         const registration = await navigator.serviceWorker.ready;
-                        const sub = await registration.pushManager.subscribe({
+
+                        let sub = await registration.pushManager.getSubscription();
+
+                        if (!sub) {
+                            sub = await registration.pushManager.subscribe({
                             userVisibleOnly: true,
                             applicationServerKey: urlBase64ToUint8Array(
                                 process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
                             )
-                        });
+                            });
+                        }
     
                         setSubscription(sub);
                         setSubscribed(checked);
