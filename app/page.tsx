@@ -69,11 +69,22 @@ export default function TodolistPage() {
                 console.log(data);
             })
 
-        fetch('/api/usersettings').then((res) => res.json())
-            .then((data) => {
-                var userSettings = data.data;
-                console.log(userSettings);
-                setSubscribed(userSettings.AllowNotification);
+        fetch('/api/usersubscriptions').then((res) => res.json())
+            .then(async (data) => {
+                if (!data.success) {
+                    console.log('No subscription found');
+                    return;
+                }
+
+                const registration = await navigator.serviceWorker.ready;
+                let subOfCurrentBrowser = await registration.pushManager.getSubscription();
+                
+                subOfCurrentBrowser?.endpoint === data.data?.endpoint ? setSubscribed(true) : setSubscribed(false);
+
+                subOfCurrentBrowser?.endpoint === data.data?.endpoint ? setSubscription(subOfCurrentBrowser) : setSubscription(null);
+                console.log('Subscription found:', data.data);
+            }).catch((error) => {
+                console.error('Error fetching subscription:', error);
             })
     }, []);
 
@@ -107,22 +118,29 @@ export default function TodolistPage() {
                 {
                     try {
                         const registration = await navigator.serviceWorker.ready;
+                        let subOfCurrentBrowser = await registration.pushManager.getSubscription();
 
-                        let sub = await registration.pushManager.getSubscription();
-
-                        if (!sub) {
-                            sub = await registration.pushManager.subscribe({
+                        if (!subOfCurrentBrowser) {
+                            subOfCurrentBrowser = await registration.pushManager.subscribe({
                             userVisibleOnly: true,
                             applicationServerKey: urlBase64ToUint8Array(
                                 process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
                             )
                             });
                         }
+
+                        const response = await fetch('/api/usersubscriptions', {
+                            method: 'POST',
+                            headers: {
+                            'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(subOfCurrentBrowser),
+                        });
     
-                        setSubscription(sub);
+                        setSubscription(subOfCurrentBrowser);
                         setSubscribed(checked);
     
-                        console.log('Subscribed successfully', sub);
+                        console.log('Subscribed successfully', subOfCurrentBrowser);
                     } catch (err) {
                         alert('Failed to get subscription!');   
                     }                    
@@ -138,6 +156,8 @@ export default function TodolistPage() {
             alert('Please enable notification at first！');
             return;
         }
+
+        console.log('Sending push notification to:', subscription);
         
         try {
             const response = await fetch('/api/send-notification', {
@@ -179,7 +199,7 @@ export default function TodolistPage() {
                         </div>
                         <div className='flex ml-auto items-center'>
                             <Switch color='secondary' checked={subscribed}
-                                    onChange={handleSubscribe}></Switch><p className='text-[12px] lg:text-[15px]'>Allow Notification</p>
+                                    onChange={handleSubscribe}></Switch><p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Device</p>
                         </div>
                     </div>
 
