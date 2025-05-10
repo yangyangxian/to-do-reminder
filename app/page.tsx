@@ -79,6 +79,11 @@ export default function TodolistPage() {
                 const registration = await navigator.serviceWorker.ready;
                 let subOfCurrentBrowser = await registration.pushManager.getSubscription();
                 
+                if (!subOfCurrentBrowser) {
+                    console.log('No local subscription found. Please register a new one.');
+                    return;
+                }
+
                 subOfCurrentBrowser?.endpoint === data.data?.endpoint ? setSubscribed(true) : setSubscribed(false);
 
                 subOfCurrentBrowser?.endpoint === data.data?.endpoint ? setSubscription(subOfCurrentBrowser) : setSubscription(null);
@@ -102,6 +107,15 @@ export default function TodolistPage() {
             if (!checked) {                
                 if (subscription) {
                     console.log('Subsritption unsubscribed');
+
+                    const response = await fetch('/api/usersubscriptions', {
+                        method: 'DELETE',
+                        headers: {
+                        'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(subscription),
+                    });
+
                     setSubscription(null);
                 } 
                 else 
