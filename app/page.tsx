@@ -112,25 +112,32 @@ export default function TodolistPage() {
     const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
             var checked = event.target.checked;
-            if (!checked) {                
-                if (subscription) {
-                    console.log('Subsritption unsubscribed');
-
-                    const response = await fetch('/api/usersubscriptions', {
-                        method: 'DELETE',
-                        headers: {
-                        'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(subscription),
-                    });
-
-                    setSubscription(null);
-                } 
-                else 
-                {
-                    console.log('No subscription found');
-                }
+            if (!checked) {
                 setSubscribed(checked);
+
+                try {
+                    if (subscription) {
+                        console.log('Subsritption unsubscribed');
+    
+                        const response = await fetch('/api/usersubscriptions', {
+                            method: 'DELETE',
+                            headers: {
+                            'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(subscription),
+                        });
+    
+                        setSubscription(null);
+                    } 
+                    else 
+                    {
+                        console.log('No subscription found');
+                    }
+                } catch (err) {
+                    console.error('Failed to unsubscribe:', err);
+                    alert('Failed to unsubscribe!');
+                    setSubscribed(true);
+                }     
             } else {  
                 if (subscription) {
                     console.log('Already has subscription', subscription);
@@ -139,6 +146,8 @@ export default function TodolistPage() {
                 else 
                 {
                     try {
+                        //change the button first to improve the user experience
+                        setSubscribed(checked);
                         const registration = await navigator.serviceWorker.ready;
                         let subOfCurrentBrowser = await registration.pushManager.getSubscription();
 
@@ -164,7 +173,8 @@ export default function TodolistPage() {
                         
                         console.log('Subscribed successfully', subOfCurrentBrowser);
                     } catch (err) {
-                        alert('Failed to get subscription!');   
+                        alert('Failed to get subscription!'); 
+                        setSubscribed(false);  
                     }                    
                 }
             }
