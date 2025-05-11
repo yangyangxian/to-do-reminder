@@ -6,12 +6,13 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Button, Switch } from '@mui/material';
+import { Button, ListSubheader, Switch } from '@mui/material';
 import { YTextField } from '@/types/Components';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
+import { isBeforeToday } from '@/utilities/compareHelper';
 
 const theme = createTheme({
     typography: {
@@ -223,15 +224,17 @@ export default function TodolistPage() {
                     </div>
 
                     <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>
-                        <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'>
-                            <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
+                        <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'
+                            subheader={
+                                <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
                                 <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
                                 <p className='w-1/6 xl:w-1/10'>Category</p>
                                 <p className='w-1/2 2xl:w-2/5'>Summary</p>
                                 <p className='w-1/10'>Status</p>
-                            </ListItem>
+                            </ListItem>}>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
+                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader>Today</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-14'>
@@ -240,12 +243,13 @@ export default function TodolistPage() {
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
                                             <ListItemIcon className='w-1/10 text-[12px]'>
                                                 {item.status === 'completed' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Completed</p></div>}
-                                                {item.status === 'inprogress' && Date.parse(item.due_date) > Date.now() &&  <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
-                                                {item.status === 'notstarted' && Date.parse(item.due_date) > Date.now() &&  <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
-                                                {item.status !== 'completed' && Date.parse(item.due_date) <= Date.now() && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
+                                                {item.status === 'inprogress' && !isBeforeToday(item.due_date) && <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
+                                                {item.status === 'notstarted' && Date.parse(item.due_date) > Date.now() && <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
+                                                {item.status !== 'completed' && isBeforeToday(item.due_date) && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
+                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader>Future</ListSubheader>}
                                 </div>
                             ))}
                         </List>
