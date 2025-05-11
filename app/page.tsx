@@ -229,10 +229,10 @@ export default function TodolistPage() {
                                             <p className='w-1/6 xl:w-1/10'>{item.category_name}</p>
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
                                             <ListItemIcon className='w-1/10 text-[12px]'>
-                                                {item.status === 'done' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Done</p></div>}
+                                                {item.status === 'completed' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Completed</p></div>}
                                                 {item.status === 'inprogress' && Date.parse(item.due_date) > Date.now() &&  <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
                                                 {item.status === 'notstarted' && Date.parse(item.due_date) > Date.now() &&  <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
-                                                {item.status !== 'done' && Date.parse(item.due_date) <= Date.now() && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
+                                                {item.status !== 'completed' && Date.parse(item.due_date) <= Date.now() && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>

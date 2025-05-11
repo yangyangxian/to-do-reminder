@@ -24,27 +24,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if the subscription already exists
-        var checkQuery = 'SELECT * FROM user_subscriptions WHERE endpoint = $1;';
+        var checkQuery = 'SELECT * FROM user_subscriptions WHERE endpoint = $1 and UserId = 1;';
         var checkData = await ExecuteSQL(checkQuery, [subscription.endpoint]);
         if (checkData.length > 0) {
             console.log('Subscription already exists:', checkData[0]);
             return NextResponse.json({ success: false, status: 409 });
-        }
-
-        var sqlQuery = 'SELECT * FROM user_subscriptions WHERE UserId = 1;';
-        var data = await ExecuteSQL(sqlQuery, []);
-        if (data.length > 0) {
-            // Update the existing subscription
-            sqlQuery = 'UPDATE user_subscriptions SET Endpoint = $1, Keys = $2 WHERE UserId = 1;';
-            data = await ExecuteSQL(sqlQuery, [
-                subscription.endpoint,
-                JSON.stringify(subscription.keys)
-            ]);
-            if (data.length > 0) {
-                return NextResponse.json({ success: true, status: 200 });
-            } else {
-                return NextResponse.json({ success: false, status: 202 });
-            }
         }
 
         var sqlQuery = 'INSERT INTO user_subscriptions (UserId, Endpoint, Keys) VALUES (1, $1, $2);';
