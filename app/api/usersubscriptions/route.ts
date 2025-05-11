@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
         var data = await ExecuteSQL('SELECT * FROM user_subscriptions ORDER BY id DESC;');
 
         if (data.length > 0)
-            return NextResponse.json({ success: true, data: data[0], status: 200 });
+            return NextResponse.json({ success: true, data: data, status: 200 });
         else 
             return NextResponse.json({ success: false, status: 202 });
     } catch (err) {

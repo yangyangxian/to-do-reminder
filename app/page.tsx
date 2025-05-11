@@ -67,22 +67,32 @@ export default function TodolistPage() {
         fetch('/api/usersubscriptions').then((res) => res.json())
             .then(async (data) => {
                 if (!data.success) {
-                    console.log('No subscription found');
+                    console.log('Subscription fetching failed.');
+                    return;
+                }
+
+                var savedSubstriptions: Array<{ endpoint: string }> = data.data;
+                if (!savedSubstriptions || savedSubstriptions.length == 0) {
+                    console.log('No saved subscription found');
                     return;
                 }
 
                 const registration = await navigator.serviceWorker.ready;
-                let subOfCurrentBrowser = await registration.pushManager.getSubscription();
-                
+                let subOfCurrentBrowser = await registration.pushManager.getSubscription();               
                 if (!subOfCurrentBrowser) {
                     console.log('No local subscription found. Please register a new one.');
                     return;
                 }
 
-                subOfCurrentBrowser?.endpoint === data.data?.endpoint ? setSubscribed(true) : setSubscribed(false);
-
-                subOfCurrentBrowser?.endpoint === data.data?.endpoint ? setSubscription(subOfCurrentBrowser) : setSubscription(null);
-                console.log('Subscription found:', data.data);
+                if (savedSubstriptions.some((item: { endpoint: string }) => item.endpoint === subOfCurrentBrowser?.endpoint))
+                {
+                    setSubscribed(true);
+                    setSubscription(subOfCurrentBrowser);
+                } else {
+                    setSubscribed(false);
+                    setSubscription(null);
+                    console.log('No matching subscription found in the database.');
+                }
             }).catch((error) => {
                 console.error('Error fetching subscription:', error);
             })
@@ -148,7 +158,7 @@ export default function TodolistPage() {
     
                         setSubscription(subOfCurrentBrowser);
                         setSubscribed(checked);
-    
+                        
                         console.log('Subscribed successfully', subOfCurrentBrowser);
                     } catch (err) {
                         alert('Failed to get subscription!');   
