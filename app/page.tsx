@@ -60,11 +60,6 @@ export default function TodolistPage() {
         fetch('/api/todos').then((res) => res.json())
             .then((data) => {
                 var todos = data.data;
-                todos.sort((a: { DueDate: Date; }, b: { DueDate: Date; }) => {
-                    const dateA = new Date(a.DueDate);
-                    const dateB = new Date(b.DueDate);
-                    return dateA.getTime() - dateB.getTime();
-                });
                 setToDos(todos);
                 console.log(data);
             })
@@ -96,7 +91,7 @@ export default function TodolistPage() {
     useEffect(() => {
         const lowercased = serchValue.toLowerCase();
         const newList = toDos.filter(item =>
-          item.Summary.toLowerCase().includes(lowercased)
+          item.summary.toLowerCase().includes(lowercased)
         );
         setfilteredToDos(newList);
     }, [serchValue, toDos]);
@@ -221,6 +216,7 @@ export default function TodolistPage() {
                         <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'>
                             <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
                                 <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
+                                <p className='w-1/6 xl:w-1/10'>Category</p>
                                 <p className='w-1/2 2xl:w-2/5'>Summary</p>
                                 <p className='w-1/10'>Status</p>
                             </ListItem>
@@ -229,13 +225,14 @@ export default function TodolistPage() {
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-14'>
-                                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>{item.DueDate}</p>
-                                            <p className='w-1/2 2xl:w-2/5'>{item.Summary}</p>
+                                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>{item.due_date}</p>
+                                            <p className='w-1/6 xl:w-1/10'>{item.category_name}</p>
+                                            <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
                                             <ListItemIcon className='w-1/10 text-[12px]'>
-                                                {item.Status === 'done' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Done</p></div>}
-                                                {item.Status === 'inprogress' && Date.parse(item.DueDate) > Date.now() &&  <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
-                                                {item.Status === 'notstarted' && Date.parse(item.DueDate) > Date.now() &&  <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
-                                                {item.Status !== 'done' && Date.parse(item.DueDate) <= Date.now() && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
+                                                {item.status === 'done' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Done</p></div>}
+                                                {item.status === 'inprogress' && Date.parse(item.due_date) > Date.now() &&  <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
+                                                {item.status === 'notstarted' && Date.parse(item.due_date) > Date.now() &&  <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
+                                                {item.status !== 'done' && Date.parse(item.due_date) <= Date.now() && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>

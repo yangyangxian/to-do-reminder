@@ -4,10 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
     try {
-        var data = await ExecuteSQL('SELECT * FROM user_to_dos ORDER BY id DESC;');
+        var data = await ExecuteSQL('SELECT ut.summary, ut.due_date, ut.status, ut.notes, tc.category_name FROM user_todos ut join todos_category tc on ut.category=tc.id order by ut.due_date asc;');
         const formattedData = data.map((item: any) => ({
             ...item,
-            DueDate: item.DueDate ? FormatDate(item.DueDate) : null,
+            due_date: item.due_date ? FormatDate(item.due_date) : null,
           }));
         
         return NextResponse.json({ success: true, data: formattedData, status: 200 });
