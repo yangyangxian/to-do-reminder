@@ -65,8 +65,8 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json({ success: false, status: 409 });
         }
 
-        var sqlQuery = 'DELETE FROM user_subscriptions WHERE UserId = 1;';
-        var data = await ExecuteSQL(sqlQuery, []);
+        var sqlQuery = 'DELETE FROM user_subscriptions WHERE UserId = 1 and endpoint = $1;';
+        var data = await ExecuteSQL(sqlQuery, [subscription.endpoint]);
         if (data.length > 0) {
             return NextResponse.json({ success: true, status: 200 });
         } else {
