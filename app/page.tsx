@@ -6,7 +6,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Button, ListSubheader, Switch } from '@mui/material';
+import { Button, CircularProgress, ListSubheader, Switch } from '@mui/material';
 import { YTextField } from '@/types/Components';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
@@ -56,11 +56,13 @@ export default function TodolistPage() {
     const [subscription, setSubscription] = useState<PushSubscription | null>(null);
     const [toDos, setToDos] = useState<Array<any>>([]);
     const [filteredToDos, setfilteredToDos] = useState<Array<any>>([]);
+    const [loading, setLoading] = useState(true);
     
     useEffect(() => {
         fetch('/api/todos').then((res) => res.json())
             .then((data) => {
                 var todos = data.data;
+                setLoading(false);
                 setToDos(todos);
                 console.log(data);
             })
@@ -231,7 +233,7 @@ export default function TodolistPage() {
                                 <p className='w-1/6 xl:w-1/10'>Category</p>
                                 <p className='w-1/2 2xl:w-2/5'>Summary</p>
                                 <p className='w-1/10'>Status</p>
-                            </ListItem>}>
+                                </ListItem>}>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
                                     { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader>Today</ListSubheader>}
@@ -253,6 +255,7 @@ export default function TodolistPage() {
                                 </div>
                             ))}
                         </List>
+                        { loading && <div className="flex mt-8 justify-center"><CircularProgress color='secondary' /></div>}
                     </div>
                 </div>
             </div>
