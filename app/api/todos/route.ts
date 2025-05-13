@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
         const formattedData = data.map((item: any) => ({
             ...item,
             due_date: item.due_date ? FormatDate(item.due_date) : null,
-          }));
+        }));
         
         return NextResponse.json({ success: true, data: formattedData, status: 200 });
     } catch (err) {

@@ -192,13 +192,7 @@ export default function TodolistPage() {
         console.log('Sending push notification to:', subscription);
         
         try {
-            const response = await fetch('/api/send-notification', {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(subscription),
-            });
+            const response = await fetch('/api/send-notification');
         
             if (response.ok) {
                 console.log('Push request sent successfully!');
@@ -215,7 +209,7 @@ export default function TodolistPage() {
             <div id='backgroundContainer' className='flex w-screen h-screen bg-[rgb(245,245,245)] text-gray-800 font-sans'> 
                 <div id='contentContainer' className='w-4/5 mx-auto'>
                     
-                    <div id='header' className='flex w-auto h-20 p-1 mb-5 items-end'>
+                    <div id='header' className='flex w-auto h-22 p-1 mb-7 items-end'>
                         <div className='flex items-center'>
                             <p className='text-xl md:text-3xl'>To-Dos</p>
                             <div className='ml-5'>
@@ -236,7 +230,7 @@ export default function TodolistPage() {
                     </div>
 
                     <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>
-                        <List disablePadding className='bg-gray-50 border-[1px] rounded-lg border-gray-300'
+                        <List disablePadding className='bg-white border-[1px] rounded-lg border-gray-300'
                             subheader={
                                 <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
                                 <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
@@ -246,7 +240,7 @@ export default function TodolistPage() {
                                 </ListItem>}>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
-                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader>Today</ListSubheader>}
+                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-14'>
@@ -261,7 +255,7 @@ export default function TodolistPage() {
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
-                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader>Future</ListSubheader>}
+                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Future</ListSubheader>}
                                 </div>
                             ))}
                         </List>
