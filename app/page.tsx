@@ -13,6 +13,7 @@ import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import { isBeforeToday } from '@/utilities/compareHelper';
+import AddEditTodoPage from '@/pageControls/page';
 
 const theme = createTheme({
     typography: {
@@ -57,6 +58,16 @@ export default function TodolistPage() {
     const [toDos, setToDos] = useState<Array<any>>([]);
     const [filteredToDos, setfilteredToDos] = useState<Array<any>>([]);
     const [loading, setLoading] = useState(true);
+
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const handleAddTodo = () => {
+        setDialogOpen(true); // Open the dialog
+    };
+
+    const handleCloseDialog = () => {
+        setDialogOpen(false); // Close the dialog
+    };
     
     useEffect(() => {
         fetch('/api/todos').then((res) => res.json())
@@ -182,38 +193,17 @@ export default function TodolistPage() {
             console.error('Action failed', err);
         }
     };
-
-    const handleSend = async () => {
-        if (!subscription) {
-            alert('Please enable notification at first！');
-            return;
-        }
-
-        console.log('Sending push notification to:', subscription);
-        
-        try {
-            const response = await fetch('/api/send-notification');
-        
-            if (response.ok) {
-                console.log('Push request sent successfully!');
-            } else {
-                console.error(response);
-            }
-        } catch (error) {
-            console.error('Push request failed:', error);
-        }
-    }
     
     return (
         <ThemeProvider theme={theme}>
             <div id='backgroundContainer' className='flex w-screen h-screen bg-[rgb(245,245,245)] text-gray-800 font-sans'> 
                 <div id='contentContainer' className='w-4/5 mx-auto'>
                     
-                    <div id='header' className='flex w-auto h-22 p-1 mb-7 items-end'>
+                    <div id='header' className='flex w-auto h-22 p-1 mb-5 items-end'>
                         <div className='flex items-center'>
                             <p className='text-xl md:text-3xl'>To-Dos</p>
                             <div className='ml-5'>
-                                <Button color='secondary' size='small' variant="outlined" onClick={handleSend}>Send Notification</Button>
+                                <Button color='secondary' size='small' variant="contained" onClick={handleAddTodo}>Add a To-do</Button>
                             </div>
                             <div className='ml-5'>                              
                                 <YTextField
@@ -261,6 +251,8 @@ export default function TodolistPage() {
                         </List>
                         { loading && <div className="flex mt-8 justify-center"><CircularProgress color='secondary' /></div>}
                     </div>
+
+                    <AddEditTodoPage open={dialogOpen} onClose={handleCloseDialog}></AddEditTodoPage>
                 </div>
             </div>
         </ThemeProvider>
