@@ -138,8 +138,9 @@ export default function TodolistPage() {
 
     useEffect(() => {
         const lowercased = serchValue.toLowerCase();
+        console.log('toDos:', toDos);
         const newList = toDos.filter(item =>
-          item.summary.toLowerCase().includes(lowercased)
+          (item.summary.toLowerCase().includes(lowercased) || item.category_name.toLowerCase().includes(lowercased))
         );
         setfilteredToDos(newList);
     }, [serchValue, toDos]);
@@ -229,7 +230,7 @@ export default function TodolistPage() {
                         <div className='flex items-center'>
                             <p className='text-xl md:text-3xl'>To-Dos</p>
                             <div className='ml-5'>
-                                <Button color='secondary' size='small' variant="contained" onClick={handleAddTodo}>Add a To-do</Button>
+                                <Button color='secondary' size='medium' variant="contained" onClick={handleAddTodo}>Add a To-do</Button>
                             </div>
                             <div className='ml-5'>                              
                                 <YTextField
