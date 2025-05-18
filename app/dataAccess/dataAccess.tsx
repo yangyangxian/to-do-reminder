@@ -13,7 +13,7 @@ export async function getOverdueTodos() {
 }
 
 export async function getAllTodos() {
-    var data = await ExecuteSQL('SELECT ut.id, ut.summary, ut.due_date, ut.status, ut.notes, tc.category_name FROM user_todos ut join todos_category tc on ut.category=tc.id order by ut.due_date asc;');
+    var data = await ExecuteSQL('SELECT ut.id, ut.summary, ut.due_date, ut.status, ut.notes, ut.category, tc.category_name FROM user_todos ut join todos_category tc on ut.category=tc.id order by ut.due_date asc;');
     return data;
 }
 

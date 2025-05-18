@@ -8,7 +8,7 @@ import { YSelectField, YTextField } from '@/app/types/FormComponents';
 import dayjs from 'dayjs';
 
 interface AddEditTodoPageProps {
-    todoData?: { summary: string; dueDate: string ; category: string; status: string; };
+    todoData?: { summary: string; dueDate: string ; category: string; status: string; id?: string };
     open: boolean; 
     onClose: () => void; 
 }
@@ -16,7 +16,7 @@ interface AddEditTodoPageProps {
 const inputCommonClasses = '!h-[43px] border-1 border-gray-300 bg-gray-50';
 
 export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTodoPageProps) {
-    const initialTodo = todoData || { summary: '', dueDate: '', category: '', status: '' };
+    const initialTodo = todoData || { summary: '', dueDate: '', category: '', status: 'notstarted' };
     const [newTodo, setNewTodo] = useState(initialTodo);
     console.log('newTodo:', newTodo);
     // Reset form when dialog is closed
@@ -26,16 +26,35 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
         }
     }, [open, todoData]);
 
-    const handleSave = () => {
-        console.log('New To-Do:', newTodo);
-        // Add logic to save the new to-do item
+    const handleSave = async () => {
+        try {
+            const method = todoData && todoData.id ? 'PUT' : 'POST';
+            const url = '/api/todos';
+            const payload = todoData && todoData.id ? { ...newTodo, id: todoData.id } : newTodo;
+            console.log('payload:', payload);
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to save to-do');
+            }
+            // Refresh the to-do list in the parent by dispatching a custom event
+            const event = new CustomEvent('refresh-todos');
+            window.dispatchEvent(event);
+        } catch (error) {
+            console.error('Error saving to-do:', error);
+        }
         onClose();
     };
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <div className='p-[10px] px-6 text-white bg-secondary'>
-                <DialogTitle className='!p-2'>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
+            <div className='p-[9px] px-6 text-white bg-secondary'>
+                <DialogTitle className='!p-2 !text-[22px]'>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
             </div>
 
             <div className='pt-3 px-6'>
@@ -53,9 +72,9 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
                         <div>
                             <YSelectField
                                 //className = {inputCommonClasses}
-                                options={[{ value: 'Story', label: 'Story' },
-                                        { value: 'Research', label: 'Research' }, 
-                                        { value: 'Shopping', label: 'Shopping' }]}
+                                options={[{ value: '1', label: 'Story' },
+                                        { value: '2', label: 'Research' }, 
+                                        { value: '3', label: 'Shopping' }]}
                                 label="Category"
                                 value={newTodo.category}
                                 onChange={(e) => setNewTodo({ ...newTodo, category: e.target.value })}

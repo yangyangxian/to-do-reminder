@@ -67,7 +67,7 @@ export default function TodolistPage() {
     };
     
     const handleEditTodo = (todo: any) => {
-        const newData = {summary:todo.summary, category:todo.category_name, dueDate:todo.due_date, status: todo.status};
+        const newData = {id:todo.id, summary:todo.summary, category:todo.category, dueDate:todo.due_date, status: todo.status};
         setDialogData(newData); // Only set data, do not open dialog here
     }
 
@@ -88,7 +88,7 @@ export default function TodolistPage() {
                 var todos = data.data;
                 setLoading(false);
                 setToDos(todos);
-            })
+            });
 
         fetch('/api/usersubscriptions').then((res) => res.json())
             .then(async (data) => {
@@ -96,20 +96,17 @@ export default function TodolistPage() {
                     console.log('Subscription fetching failed.');
                     return;
                 }
-
                 var savedSubstriptions: Array<{ endpoint: string }> = data.data;
                 if (!savedSubstriptions || savedSubstriptions.length == 0) {
                     console.log('No saved subscription found');
                     return;
                 }
-
                 const registration = await navigator.serviceWorker.ready;
                 let subOfCurrentBrowser = await registration.pushManager.getSubscription();               
                 if (!subOfCurrentBrowser) {
                     console.log('No local subscription found. Please register a new one.');
                     return;
                 }
-
                 if (savedSubstriptions.some((item: { endpoint: string }) => item.endpoint === subOfCurrentBrowser?.endpoint))
                 {
                     setSubscribed(true);
@@ -121,7 +118,22 @@ export default function TodolistPage() {
                 }
             }).catch((error) => {
                 console.error('Error fetching subscription:', error);
-            })
+            });
+
+        // Listen for refresh-todos event
+        const refreshHandler = () => {
+            setLoading(true);
+            fetch('/api/todos').then((res) => res.json())
+                .then((data) => {
+                    var todos = data.data;
+                    setLoading(false);
+                    setToDos(todos);
+                });
+        };
+        window.addEventListener('refresh-todos', refreshHandler);
+        return () => {
+            window.removeEventListener('refresh-todos', refreshHandler);
+        };
     }, []);
 
     useEffect(() => {
