@@ -76,11 +76,14 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
           },
           '&:hover, &.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: '#d1d5db !important',
-            //boxShadow: '2',
           },
           '&.Mui-focused:hover .MuiOutlinedInput-notchedOutline, &:focus:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: 'rgb(156,39,176) !important', // keep secondary color on hover+focus
           },
+          '& .MuiSelect-select': {
+            fontSize: '11px', // Ensures the selected value uses this size
+          },
+          fontSize: '12px',
         }}
       >
         {options.map((opt) => (

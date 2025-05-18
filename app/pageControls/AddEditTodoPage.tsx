@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-import { YSelectField, YTextField } from '@/app/types/Components';
+import { YSelectField, YTextField } from '@/app/types/FormComponents';
 
 interface AddEditTodoPageProps {
     todoData?: { summary: string; dueDate: string ; category: string; status: string; };
@@ -15,7 +15,15 @@ interface AddEditTodoPageProps {
 const inputCommonClasses = '!h-[43px] border-1 border-gray-300 bg-gray-50';
 
 export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTodoPageProps) {
-    const [newTodo, setNewTodo] = useState(todoData || { summary: '', dueDate: '', category: '', status: '' });
+    const initialTodo = todoData || { summary: '', dueDate: '', category: '', status: '' };
+    const [newTodo, setNewTodo] = useState(initialTodo);
+
+    // Reset form when dialog is closed
+    useEffect(() => {
+        if (!open) {
+            setNewTodo(initialTodo);
+        }
+    }, [open, todoData]);
 
     const handleSave = () => {
         console.log('New To-Do:', newTodo);
@@ -28,7 +36,8 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
             <div className='p-3 px-6 text-white bg-secondary'>
                 <DialogTitle className='!p-2'>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
             </div>
-            <div className='py-3 px-6'>
+
+            <div className='pt-3 px-6'>
                 <DialogContent className='!p-2'>
                     <div className='w-100 space-y-4'>
                         <div>

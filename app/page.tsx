@@ -7,7 +7,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Button, CircularProgress, ListSubheader, Switch } from '@mui/material';
-import { YTextField } from '@/app/types/Components';
+import { YTextField } from '@/app/types/FormComponents';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';
@@ -233,7 +233,7 @@ export default function TodolistPage() {
                                     { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
-                                        <ListItemButton className='h-14'>
+                                        <ListItemButton className='h-13'>
                                             <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>{item.due_date}</p>
                                             <p className='w-1/6 xl:w-1/10'>{item.category_name}</p>
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
