@@ -16,13 +16,13 @@ export const YTextField: React.FC<CustomTextFieldProps> = ({
   return (
     <div className={`flex flex-col`}>
       {label && (
-        <label className="text-sm font-medium text-gray-700">
+        <label className="mb-1 text-sm font-medium text-gray-700">
           {label}
         </label>
       )}
       <input
         {...props}
-        className={`h-[35px] mt-1 bg-[rgb(233,235,240)] hover:shadow-lg focus:bg-white border-gray-300 rounded-md px-3 py-2 
+        className={`h-[35px] bg-[rgb(233,235,240)] hover:shadow-lg focus:bg-white border-gray-300 rounded-md px-3 py-2 
           text-sm focus:outline-[rgb(156,39,176)] focus:outline-2 ${className}`}
       />
       {error && (
@@ -56,7 +56,7 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
   return (
     <div className="flex flex-col">
       {label && (
-        <label className="mr-3 text-sm font-medium text-gray-700">
+        <label className="mb-1 text-sm font-medium text-gray-700">
           {label}
         </label>
       )}

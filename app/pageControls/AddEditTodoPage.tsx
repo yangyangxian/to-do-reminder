@@ -25,7 +25,7 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <div className='pt-3 px-6 text-white}'>
+            <div className='p-3 px-6 text-white bg-secondary'>
                 <DialogTitle className='!p-2'>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
             </div>
             <div className='py-3 px-6'>
@@ -73,11 +73,13 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
                     </div>
                 </DialogContent>
             </div>
-
-            <DialogActions>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button onClick={handleSave}>Save</Button>
-            </DialogActions>
+            
+            <div className='mb-2'>
+                <DialogActions>
+                    <Button color='secondary' variant='contained' onClick={handleSave}>Save</Button>
+                    <Button color='secondary' onClick={onClose}>Cancel</Button>
+                </DialogActions>
+            </div>
         </Dialog>
     );
 }
