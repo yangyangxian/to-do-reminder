@@ -5,6 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import { YSelectField, YTextField } from '@/app/types/FormComponents';
+import dayjs from 'dayjs';
 
 interface AddEditTodoPageProps {
     todoData?: { summary: string; dueDate: string ; category: string; status: string; };
@@ -17,7 +18,7 @@ const inputCommonClasses = '!h-[43px] border-1 border-gray-300 bg-gray-50';
 export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTodoPageProps) {
     const initialTodo = todoData || { summary: '', dueDate: '', category: '', status: '' };
     const [newTodo, setNewTodo] = useState(initialTodo);
-
+    console.log('newTodo:', newTodo);
     // Reset form when dialog is closed
     useEffect(() => {
         if (!open) {
@@ -44,8 +45,8 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
                             <YTextField
                                 className = {inputCommonClasses}
                                 label="Due Date"
-                                type="date"
-                                value={newTodo.dueDate}
+                                type="date"                                
+                                value={dayjs(newTodo.dueDate).format('YYYY-MM-DD')}
                                 onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
                             />
                         </div>

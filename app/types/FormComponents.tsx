@@ -23,7 +23,7 @@ export const YTextField: React.FC<CustomTextFieldProps> = ({
       <input
         {...props}
         className={`h-[35px] bg-[rgb(233,235,240)] hover:shadow-lg focus:bg-white border-gray-300 rounded-md px-3 py-2 
-          text-sm focus:outline-[rgb(156,39,176)] focus:outline-2 ${className}`}
+          text-md focus:outline-[rgb(156,39,176)] focus:outline-2 ${className}`}
       />
       {error && (
         <p className="mt-1 text-xs text-red-500">
@@ -81,9 +81,8 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
             borderColor: 'rgb(156,39,176) !important', // keep secondary color on hover+focus
           },
           '& .MuiSelect-select': {
-            fontSize: '11px', // Ensures the selected value uses this size
+            fontSize: '14px', // Ensures the selected value uses this size
           },
-          fontSize: '12px',
         }}
       >
         {options.map((opt) => (

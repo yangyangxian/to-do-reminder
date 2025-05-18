@@ -60,12 +60,25 @@ export default function TodolistPage() {
     const [loading, setLoading] = useState(true);
 
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string ; category: string; status: string; }>();
 
     const handleAddTodo = () => {
         setDialogOpen(true); // Open the dialog
     };
+    
+    const handleEditTodo = (todo: any) => {
+        const newData = {summary:todo.summary, category:todo.category_name, dueDate:todo.due_date, status: todo.status};
+        setDialogData(newData); // Only set data, do not open dialog here
+    }
+
+    useEffect(() => {
+        if (dialogData) {
+            setDialogOpen(true);
+        }
+    }, [dialogData]);
 
     const handleCloseDialog = () => {
+        setDialogData(undefined); // Reset the dialog data
         setDialogOpen(false); // Close the dialog
     };
     
@@ -75,7 +88,6 @@ export default function TodolistPage() {
                 var todos = data.data;
                 setLoading(false);
                 setToDos(todos);
-                console.log(data);
             })
 
         fetch('/api/usersubscriptions').then((res) => res.json())
@@ -233,7 +245,7 @@ export default function TodolistPage() {
                                     { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
-                                        <ListItemButton className='h-13'>
+                                        <ListItemButton className='h-13' onClick={() => handleEditTodo(item)}>
                                             <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>{item.due_date}</p>
                                             <p className='w-1/6 xl:w-1/10'>{item.category_name}</p>
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
@@ -251,8 +263,9 @@ export default function TodolistPage() {
                         </List>
                         { loading && <div className="flex mt-8 justify-center"><CircularProgress color='secondary' /></div>}
                     </div>
-
-                    <AddEditTodoPage open={dialogOpen} onClose={handleCloseDialog}></AddEditTodoPage>
+                    {dialogOpen && (
+                        <AddEditTodoPage open={true} onClose={handleCloseDialog} todoData={dialogData}></AddEditTodoPage>
+                    )}
                 </div>
             </div>
         </ThemeProvider>
