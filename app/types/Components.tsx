@@ -22,7 +22,7 @@ export const YTextField: React.FC<CustomTextFieldProps> = ({
       )}
       <input
         {...props}
-        className={`h-[35px] mt-1 bg-[rgb(233,235,240)] focus:bg-white border-gray-300 rounded-md px-3 py-2 
+        className={`h-[35px] mt-1 bg-[rgb(233,235,240)] hover:shadow-lg focus:bg-white border-gray-300 rounded-md px-3 py-2 
           text-sm focus:outline-[rgb(156,39,176)] focus:outline-2 ${className}`}
       />
       {error && (
@@ -64,9 +64,24 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
         value={value}
         onChange={onChange}
         color="secondary"
-        className={`!w-100 !h-[40px] bg-gray-50 !border-gray-300 !rounded-md ${className}`}
+        className={`!w-100 !h-[43px] !text-gray-600 hover:shadow-lg bg-gray-50 !border-gray-300 !rounded-md ${className}`}
         size="small"
         {...props}
+        sx={{
+          '&.Mui-focused, &:focus': {
+            backgroundColor: '#fff',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'rgb(156,39,176) !important', // secondary color
+            },
+          },
+          '&:hover, &.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#d1d5db !important',
+            //boxShadow: '2',
+          },
+          '&.Mui-focused:hover .MuiOutlinedInput-notchedOutline, &:focus:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'rgb(156,39,176) !important', // keep secondary color on hover+focus
+          },
+        }}
       >
         {options.map((opt) => (
           <MenuItem key={opt.value} value={opt.value}>

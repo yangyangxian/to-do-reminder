@@ -4,9 +4,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
-import { YSelectField, YTextField } from '@/types/Components';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import { YSelectField, YTextField } from '@/app/types/Components';
 
 interface AddEditTodoPageProps {
     todoData?: { summary: string; dueDate: string ; category: string; status: string; };
@@ -14,8 +12,7 @@ interface AddEditTodoPageProps {
     onClose: () => void; 
 }
 
-const inputCommonClasses = '!h-[40px] border-1 border-gray-300 bg-gray-50';
-const selectCommonClasses = '!w-100 !h-[45px] bg-gray-50 !border-gray-300 !rounded-md';
+const inputCommonClasses = '!h-[43px] border-1 border-gray-300 bg-gray-50';
 
 export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTodoPageProps) {
     const [newTodo, setNewTodo] = useState(todoData || { summary: '', dueDate: '', category: '', status: '' });
@@ -27,10 +24,12 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
     };
 
     return (
-        <div>
-            <Dialog className='p-5' open={open} onClose={onClose}>
-                <DialogTitle>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
-                <DialogContent>
+        <Dialog open={open} onClose={onClose}>
+            <div className='pt-3 px-6 text-white}'>
+                <DialogTitle className='!p-2'>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
+            </div>
+            <div className='py-3 px-6'>
+                <DialogContent className='!p-2'>
                     <div className='w-100 space-y-4'>
                         <div>
                             <YTextField
@@ -73,11 +72,12 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
                         </div>
                     </div>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSave}>Save</Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+            </div>
+
+            <DialogActions>
+                <Button onClick={onClose}>Cancel</Button>
+                <Button onClick={handleSave}>Save</Button>
+            </DialogActions>
+        </Dialog>
     );
 }

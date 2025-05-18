@@ -1,4 +1,4 @@
-import { getOverdueTodos, getTodayTodos, getUserSubscriptions } from '@/dataAccess/dataAccess';
+import { getOverdueTodos, getTodayTodos, getUserSubscriptions } from '@/app/dataAccess/dataAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import webPush from 'web-push';
 

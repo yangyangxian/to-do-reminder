@@ -1,5 +1,5 @@
-import { ExecuteSQL, getAllTodos } from '@/dataAccess/dataAccess';
-import { FormatDate } from '@/utilities/formatHelper';
+import { ExecuteSQL, getAllTodos } from '@/app/dataAccess/dataAccess';
+import { FormatDate } from '@/app/utilities/formatHelper';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {

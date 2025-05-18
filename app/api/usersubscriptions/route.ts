@@ -1,4 +1,4 @@
-import { ExecuteSQL } from '@/dataAccess/dataAccess';
+import { ExecuteSQL } from '@/app/dataAccess/dataAccess';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {

@@ -7,13 +7,13 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Button, CircularProgress, ListSubheader, Switch } from '@mui/material';
-import { YTextField } from '@/types/Components';
+import { YTextField } from '@/app/types/Components';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
-import { isBeforeToday } from '@/utilities/compareHelper';
-import AddEditTodoPage from '@/pageControls/page';
+import { isBeforeToday } from '@/app/utilities/compareHelper';
+import AddEditTodoPage from '@/app/pageControls/AddEditTodoPage';
 
 const theme = createTheme({
     typography: {
