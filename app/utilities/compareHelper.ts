@@ -4,6 +4,7 @@ export const isBeforeToday = (dateString: string): boolean => {
 
   // Set the time of today to midnight to compare only the date part
   today.setHours(0, 0, 0, 0);
+  inputDate.setHours(0, 0, 0, 0);
 
   return inputDate < today;
 };

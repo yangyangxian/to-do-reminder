@@ -34,7 +34,7 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <div className='p-3 px-6 text-white bg-secondary'>
+            <div className='p-[10px] px-6 text-white bg-secondary'>
                 <DialogTitle className='!p-2'>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
             </div>
 

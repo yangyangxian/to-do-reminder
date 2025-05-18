@@ -12,7 +12,7 @@ import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlin
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
-import { isBeforeToday } from '@/app/utilities/compareHelper';
+import { isBeforeToday, isToday } from '@/app/utilities/compareHelper';
 import AddEditTodoPage from '@/app/pageControls/AddEditTodoPage';
 
 const theme = createTheme({
@@ -149,7 +149,8 @@ export default function TodolistPage() {
                             },
                             body: JSON.stringify(subscription),
                         });
-    
+
+                        alert('Unsubscribed successfully');
                         setSubscription(null);
                     } 
                     else 
@@ -194,6 +195,7 @@ export default function TodolistPage() {
                         setSubscription(subOfCurrentBrowser);
                         setSubscribed(checked);
                         
+                        alert('Subscribed successfully');
                         console.log('Subscribed successfully', subOfCurrentBrowser);
                     } catch (err) {
                         alert('Failed to get subscription!'); 
@@ -252,8 +254,8 @@ export default function TodolistPage() {
                                             <ListItemIcon className='w-1/10 text-[12px]'>
                                                 {item.status === 'completed' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Completed</p></div>}
                                                 {item.status === 'inprogress' && !isBeforeToday(item.due_date) && <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
-                                                {item.status === 'notstarted' && Date.parse(item.due_date) > Date.now() && <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
-                                                {item.status !== 'completed' && isBeforeToday(item.due_date) && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>Overdue</p></div>}
+                                                {item.status === 'notstarted' && !isBeforeToday(item.due_date) && <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
+                                                {item.status !== 'completed' && isBeforeToday(item.due_date) && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
