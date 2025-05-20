@@ -58,9 +58,10 @@ export default function TodolistPage() {
     const [toDos, setToDos] = useState<Array<any>>([]);
     const [filteredToDos, setfilteredToDos] = useState<Array<any>>([]);
     const [loading, setLoading] = useState(true);
-
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string ; category: string; status: string; }>();
+
+    const listRef = React.useRef<HTMLDivElement>(null);
 
     const handleAddTodo = () => {
         setDialogOpen(true); // Open the dialog
@@ -145,6 +146,20 @@ export default function TodolistPage() {
         setfilteredToDos(newList);
     }, [serchValue, toDos]);
 
+    useEffect(() => {
+        if (filteredToDos.length === 0 || !listRef.current) return;
+        
+        const pastIndexes = filteredToDos.filter(item => isBeforeToday(item.due_date) || isToday(item.due_date));
+            console.log('pastIndexes:', pastIndexes);
+        if (pastIndexes.length > 2) {
+            const listNode = listRef.current;
+            const itemNodes = listNode.querySelectorAll('.todo-list-item');
+            if (itemNodes[pastIndexes.length-2]) {
+                (itemNodes[pastIndexes.length-2] as HTMLDivElement).scrollIntoView({ behavior: 'auto', block: 'start' });        
+            }
+        }
+    }, [filteredToDos, loading]);
+
     const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
             var checked = event.target.checked;
@@ -223,10 +238,10 @@ export default function TodolistPage() {
     
     return (
         <ThemeProvider theme={theme}>
-            <div id='backgroundContainer' className='flex w-screen h-screen bg-[rgb(245,245,245)] text-gray-800 font-sans'> 
+            <div id='backgroundContainer' className='flex w-screen pb-10 bg-[rgb(245,245,245)] text-gray-800 font-sans'> 
                 <div id='contentContainer' className='w-4/5 mx-auto'>
                     
-                    <div id='header' className='flex w-auto h-22 p-1 mb-5 items-end'>
+                    <div id='header' className='flex w-auto h-22 p-1 mb-6 items-end'>
                         <div className='flex items-center'>
                             <p className='text-xl md:text-3xl'>To-Dos</p>
                             <div className='ml-5'>
@@ -247,20 +262,24 @@ export default function TodolistPage() {
                     </div>
 
                     <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>
-                        <List disablePadding className='bg-white border-[1px] rounded-lg border-gray-300'
-                            subheader={
-                                <ListItem key='0' className='h-10 bg-[rgb(235,237,242)] rounded-t-lg'>
-                                <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
-                                <p className='w-1/6 xl:w-1/10'>Category</p>
-                                <p className='w-1/2 2xl:w-2/5'>Summary</p>
-                                <p className='w-1/10'>Status</p>
-                                </ListItem>}>
+
+                        <ListItem key='0' className='h-11 bg-[rgb(235,237,242)] rounded-t-lg border-x-1 border-t-1 border-gray-300'>
+                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
+                            <p className='w-1/6 xl:w-1/10'>Category</p>
+                            <p className='w-1/2 2xl:w-2/5'>Summary</p>
+                            <p className='w-1/10'>Status</p>
+                        </ListItem>
+
+                        <List ref={listRef} disablePadding component="nav" 
+                            sx={{ maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }} 
+                            className='bg-white border-b-[1px] border-x-1 rounded-b-lg border-gray-300'>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
                                     { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
+                                    { filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id && <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Future To-Do</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
-                                        <ListItemButton className='h-13' onClick={() => handleEditTodo(item)}>
+                                        <ListItemButton className='h-13 todo-list-item' onClick={() => handleEditTodo(item)}>
                                             <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>{item.due_date}</p>
                                             <p className='w-1/6 xl:w-1/10'>{item.category_name}</p>
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
@@ -272,7 +291,6 @@ export default function TodolistPage() {
                                             </ListItemIcon>
                                         </ListItemButton>
                                     </ListItem>
-                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Future</ListSubheader>}
                                 </div>
                             ))}
                         </List>
