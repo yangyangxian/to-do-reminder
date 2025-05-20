@@ -16,14 +16,20 @@ export async function GET() {
       return NextResponse.json({ message: "no todos needs to sent today." });
     }
 
-    var subscriptions = await getUserSubscriptions();
+    const subscriptions = await getUserSubscriptions();
 
-    todosToday.forEach(element => {
-        sendNotification('You have a todo due today:' + element.summary, subscriptions);
-    });
+    // Send notifications for today's todos
+    await Promise.all(
+      todosToday.map(element =>
+        sendNotification('You have a todo due today:' + element.summary, subscriptions)
+      )
+    );
 
-    var overDueBody = 'You have ' + todosOverdue.length +' overdue todos';
-    sendNotification(overDueBody, subscriptions);
+    // Send notification for overdue todos
+    if (todosOverdue.length > 0) {
+      const overDueBody = 'You have ' + todosOverdue.length + ' overdue todos';
+      await sendNotification(overDueBody, subscriptions);
+    }
   } catch (err) {
     console.error('request failed:', err);
     return NextResponse.json({ error: 'request failed' }, { status: 500 });
@@ -34,37 +40,43 @@ export async function GET() {
 
 async function sendNotification(body: string, subscriptions: Array<Record<string, any>>) {
   try {
-    subscriptions.forEach((sub: Record<string, any>) => {
-      if (sub.endpoint && sub.keys && JSON.parse(sub.keys).p256dh && JSON.parse(sub.keys).auth) {
-        const pushSubscription = {
-          endpoint: sub.endpoint,
-          expirationTime: null, 
-          keys: {
-            p256dh: JSON.parse(sub.keys).p256dh,
-            auth: JSON.parse(sub.keys).auth, 
-          },
-        };
-    
-        const payload = JSON.stringify({
-          title: 'To-do Reminder',
-          body: body,
-          url: '/',
-        });
+    const results = await Promise.all(
+      subscriptions.map(async (sub: Record<string, any>) => {
+        try {
+          if (sub.endpoint && sub.keys && JSON.parse(sub.keys).p256dh && JSON.parse(sub.keys).auth) {
+            const pushSubscription = {
+              endpoint: sub.endpoint,
+              expirationTime: null,
+              keys: {
+                p256dh: JSON.parse(sub.keys).p256dh,
+                auth: JSON.parse(sub.keys).auth,
+              },
+            };
 
-        const options = {
-          TTL: 60, // in seconds
-          urgency: 'high' as webPush.Urgency, // low, normal, high, or very-low
-        };
-    
-        webPush.sendNotification(pushSubscription, payload, options).catch((err) => {
+            const payload = JSON.stringify({
+              title: 'To-do Reminder',
+              body: body,
+              url: '/',
+            });
+
+            const options = {
+              TTL: 60, // in seconds
+              urgency: 'high' as webPush.Urgency, // low, normal, high, or very-low
+            };
+
+            await webPush.sendNotification(pushSubscription, payload, options);
+            return { success: true };
+          } else {
+            console.error('Invalid subscription object:', sub);
+            return { success: false, error: 'Invalid subscription object' };
+          }
+        } catch (err) {
           console.error('Failed to send notification:', err);
-        });
-
-      } else {
-          console.error('Invalid subscription object:', sub);
-      }
-    });
-    console.log('Notification sent successfully');
+          return { success: false, error: err };
+        }
+      })
+    );
+    console.log('Notification send results:', results);
   } catch (error) {
     console.error('Error sending notification:', error);
   }
