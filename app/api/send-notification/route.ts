@@ -50,8 +50,13 @@ async function sendNotification(body: string, subscriptions: Array<Record<string
           body: body,
           url: '/',
         });
+
+        const options = {
+          TTL: 60, // in seconds
+          urgency: 'high' as webPush.Urgency, // low, normal, high, or very-low
+        };
     
-        webPush.sendNotification(pushSubscription, payload).catch((err) => {
+        webPush.sendNotification(pushSubscription, payload, options).catch((err) => {
           console.error('Failed to send notification:', err);
         });
 
