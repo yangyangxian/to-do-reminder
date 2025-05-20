@@ -65,7 +65,7 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
                                 className = {inputCommonClasses}
                                 label="Due Date"
                                 type="date"                                
-                                value={dayjs(newTodo.dueDate).format('YYYY-MM-DD')}
+                                value={newTodo.dueDate=='' ? dayjs(Date.now()).format('YYYY-MM-DD') : dayjs(newTodo.dueDate).format('YYYY-MM-DD')}
                                 onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
                             />
                         </div>
