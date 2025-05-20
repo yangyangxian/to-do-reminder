@@ -6,7 +6,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Button, CircularProgress, ListSubheader, Switch } from '@mui/material';
+import { Button, CircularProgress, IconButton, ListSubheader, Switch } from '@mui/material';
 import { YTextField } from '@/app/types/FormComponents';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
@@ -14,6 +14,7 @@ import ChecklistIcon from '@mui/icons-material/Checklist';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
 import { isBeforeToday, isToday } from '@/app/utilities/compareHelper';
 import AddEditTodoPage from '@/app/pageControls/AddEditTodoPage';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const theme = createTheme({
     typography: {
@@ -139,7 +140,7 @@ export default function TodolistPage() {
 
     useEffect(() => {
         const lowercased = serchValue.toLowerCase();
-        console.log('toDos:', toDos);
+
         const newList = toDos.filter(item =>
           (item.summary.toLowerCase().includes(lowercased) || item.category_name.toLowerCase().includes(lowercased))
         );
@@ -150,7 +151,7 @@ export default function TodolistPage() {
         if (filteredToDos.length === 0 || !listRef.current) return;
         
         const pastIndexes = filteredToDos.filter(item => isBeforeToday(item.due_date) || isToday(item.due_date));
-            console.log('pastIndexes:', pastIndexes);
+
         if (pastIndexes.length > 2) {
             const listNode = listRef.current;
             const itemNodes = listNode.querySelectorAll('.todo-list-item');
@@ -238,12 +239,12 @@ export default function TodolistPage() {
     
     return (
         <ThemeProvider theme={theme}>
-            <div id='backgroundContainer' className='flex w-screen pb-10 bg-[rgb(245,245,245)] text-gray-800 font-sans'> 
+            <div id='backgroundContainer' className='flex min-h-screen w-screen pb-10 bg-[rgb(245,245,245)] text-gray-800 font-sans'> 
                 <div id='contentContainer' className='w-4/5 mx-auto'>
                     
                     <div id='header' className='flex w-auto h-22 p-1 mb-6 items-end'>
                         <div className='flex items-center'>
-                            <p className='text-xl md:text-3xl'>To-Dos</p>
+                            <p className='text-xl md:text-4xl'>To-Dos</p>
                             <div className='ml-5'>
                                 <Button color='secondary' size='medium' variant="contained" onClick={handleAddTodo}>Add a To-do</Button>
                             </div>
@@ -263,11 +264,12 @@ export default function TodolistPage() {
 
                     <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>
 
-                        <ListItem key='0' className='h-11 bg-[rgb(235,237,242)] rounded-t-lg border-x-1 border-t-1 border-gray-300'>
+                        <ListItem key='0' className='h-11 bg-[rgb(235,237,242)] rounded-t-lg border-1 border-b-0 border-gray-300 !text-gray-900'>
                             <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
                             <p className='w-1/6 xl:w-1/10'>Category</p>
                             <p className='w-1/2 2xl:w-2/5'>Summary</p>
                             <p className='w-1/10'>Status</p>
+                            <p className='w-1/10'>Actions</p>
                         </ListItem>
 
                         <List ref={listRef} disablePadding component="nav" 
@@ -289,6 +291,11 @@ export default function TodolistPage() {
                                                 {item.status === 'notstarted' && !isBeforeToday(item.due_date) && <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
                                                 {item.status !== 'completed' && isBeforeToday(item.due_date) && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
                                             </ListItemIcon>
+                                            <div className="w-1/10 flex">
+                                                <IconButton onClick={e => { e.stopPropagation(); /* handle delete here */ }} className='!p-0'>
+                                                    <DeleteForeverIcon className='text-red-600'></DeleteForeverIcon>
+                                                </IconButton>
+                                            </div>                                           
                                         </ListItemButton>
                                     </ListItem>
                                 </div>
