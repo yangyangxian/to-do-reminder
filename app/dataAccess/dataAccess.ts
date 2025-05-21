@@ -14,8 +14,8 @@ export async function getTodayTodos() {
     return data;
 }
 
-export async function getOverdueTodos() {
-    const data = await ExecuteSQL("SELECT * FROM user_todos where due_date < $1 and status != 'completed';", [FormatDate(new Date())]);
+export async function getUncompleteTodosBefore(date: string) {
+    const data = await ExecuteSQL("SELECT * FROM user_todos where due_date < $1 and status != 'completed';", [date]);
     return data;
 }
 

@@ -1,6 +1,7 @@
-import { getOverdueTodos, getTodayTodos, getUserSubscriptions } from '@/app/dataAccess/dataAccess';
+import { getUncompleteTodosBefore, getUserSubscriptions } from '@/app/dataAccess/dataAccess';
 import { NextRequest, NextResponse } from 'next/server';
 import webPush from 'web-push';
+import dayjs from 'dayjs';
 
 webPush.setVapidDetails(
   'mailto:yangyang07271013@gmail.com',
@@ -10,32 +11,21 @@ webPush.setVapidDetails(
 
 export async function GET() {
   try {
-    const todosToday = await getTodayTodos();
-    const todosOverdue = await getOverdueTodos();
-    if (todosToday.length === 0 && todosOverdue.length === 0) {
+    const todos = await getUncompleteTodosBefore(dayjs().add(2, 'day').format("YYYY-MM-DD"));
+    if (todos.length === 0) {
       return NextResponse.json({ message: "no todos needs to sent today." });
     }
 
     const subscriptions = await getUserSubscriptions();
 
-    // Send notifications for today's todos
-    await Promise.all(
-      todosToday.map((element: { summary: string; }) =>
-        sendNotification('You have a todo due today:' + element.summary, subscriptions)
-      )
-    );
+    await sendNotification('You have upcoming or overdue to-dos.', subscriptions);
 
-    // Send notification for overdue todos
-    if (todosOverdue.length > 0) {
-      const overDueBody = 'You have ' + todosOverdue.length + ' overdue todos';
-      await sendNotification(overDueBody, subscriptions);
-    }
   } catch (err) {
     console.error('request failed:', err);
     return NextResponse.json({ error: 'request failed' }, { status: 500 });
   }
   
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, status: 200 });
 }
 
 async function sendNotification(body: string, subscriptions: Array<Record<string, any>>) {
@@ -60,7 +50,7 @@ async function sendNotification(body: string, subscriptions: Array<Record<string
             });
 
             const options = {
-              TTL: 60, // in seconds
+              TTL: 20, // in seconds
               urgency: 'high' as webPush.Urgency, // low, normal, high, or very-low
             };
 
