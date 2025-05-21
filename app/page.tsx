@@ -309,7 +309,9 @@ export default function TodolistPage() {
                             <p className='w-1/6 xl:w-1/10'>Category</p>
                             <p className='w-1/2 2xl:w-2/5'>Summary</p>
                             <p className='w-1/10'>Status</p>
-                            <p className='w-1/10'>Actions</p>
+                            <div className="w-1/10 flex justify-center">
+                                <p>Actions</p>
+                            </div>
                         </ListItem>
 
                         <List ref={listRef} disablePadding component="nav" 
@@ -320,7 +322,7 @@ export default function TodolistPage() {
                                     { new Date(item.due_date).toDateString() == new Date().toDateString() && 
                                         <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
                                     { filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id && 
-                                        <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do items</ListSubheader>}
+                                        <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do Items</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-13 todo-list-item' onClick={() => handleEditTodo(item)}>
@@ -345,7 +347,7 @@ export default function TodolistPage() {
                                                         <p className='ml-2 mt-1'>In Progress</p>
                                                     </div>}
                                             </ListItemIcon>
-                                            <div className="w-1/10 flex">
+                                            <div className="w-1/10 flex justify-center">
                                                 <IconButton onClick={e => { e.stopPropagation(); handleDeleteTodo(item.id); }} className='!p-0'>
                                                     <DeleteForeverIcon className='text-red-600'></DeleteForeverIcon>
                                                 </IconButton>
@@ -360,7 +362,7 @@ export default function TodolistPage() {
                     {dialogOpen && (
                         <AddEditTodoPage open={true} onClose={handleCloseDialog} todoData={dialogData}></AddEditTodoPage>
                     )}
-                    {/* Delete Confirmation Dialog */}                    
+                 
                     <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>
                         <div className='pr-4 pt-2 pb-4'>
                             <DialogTitle className='!text-xl !mb-2 text-secondary'>Delete To-Do</DialogTitle>
