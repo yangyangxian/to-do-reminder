@@ -64,7 +64,8 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
                             <YTextField
                                 className = {inputCommonClasses}
                                 label="Due Date"
-                                type="date"                                
+                                type="date"
+                                disabled={newTodo.status === 'completed'}                                
                                 value={newTodo.dueDate=='' ? dayjs(Date.now()).format('YYYY-MM-DD') : dayjs(newTodo.dueDate).format('YYYY-MM-DD')}
                                 onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
                             />
