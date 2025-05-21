@@ -2,6 +2,13 @@
 import { FormatDate } from "@/app/utilities/formatHelper";
 import { neon } from "@neondatabase/serverless";
 
+// Use a singleton for the Neon client to avoid creating a new connection on every request (especially in dev)
+let sql: any;
+if (!(globalThis as any)._neonClient) {
+    (globalThis as any)._neonClient = neon(process.env.DATABASE_URL!);
+}
+sql = (globalThis as any)._neonClient;
+
 export async function getTodayTodos() {
     const data = await ExecuteSQL("SELECT * FROM user_todos where due_date = $1;", [FormatDate(new Date())]);
     return data;
@@ -23,7 +30,6 @@ export async function getUserSubscriptions() {
 }
 
 export async function ExecuteSQL(query: string, p0: any[] = []) {
-    const sql = neon(process.env.DATABASE_URL!);
     console.log("Executing query:", query, "with parameters:", p0);
     const data = await sql.query(query, p0);
     return data;

@@ -6,7 +6,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Button, CircularProgress, IconButton, ListSubheader, Switch } from '@mui/material';
+import { Button, CircularProgress, IconButton, ListSubheader, Switch, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { YTextField } from '@/app/types/FormComponents';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
@@ -61,6 +61,8 @@ export default function TodolistPage() {
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string ; category: string; status: string; }>();
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [todoIdToDelete, setTodoIdToDelete] = useState<number | null>(null);
 
     const listRef = React.useRef<HTMLDivElement>(null);
 
@@ -72,6 +74,44 @@ export default function TodolistPage() {
         const newData = {id:todo.id, summary:todo.summary, category:todo.category, dueDate:todo.due_date, status: todo.status};
         setDialogData(newData); // Only set data, do not open dialog here
     }
+
+    // Show delete confirmation dialog
+    const handleDeleteTodo = (todoId: number) => {
+        setTodoIdToDelete(todoId);
+        setDeleteDialogOpen(true);
+    };
+
+    // Confirm delete
+    const handleConfirmDelete = async () => {
+        if (todoIdToDelete == null) return;
+        try {
+            const response = await fetch('/api/todos', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: todoIdToDelete }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to delete to-do');
+            }
+            // Refresh the to-do list
+            const event = new CustomEvent('refresh-todos');
+            window.dispatchEvent(event);
+        } catch (error) {
+            alert('Error deleting to-do');
+            console.error('Error deleting to-do:', error);
+        } finally {
+            setDeleteDialogOpen(false);
+            setTodoIdToDelete(null);
+        }
+    };
+
+    // Cancel delete
+    const handleCancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setTodoIdToDelete(null);
+    };
 
     useEffect(() => {
         if (dialogData) {
@@ -277,8 +317,10 @@ export default function TodolistPage() {
                             className='bg-white border-b-[1px] border-x-1 rounded-b-lg border-gray-300'>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
-                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
-                                    { filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id && <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Future To-Do</ListSubheader>}
+                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && 
+                                        <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
+                                    { filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id && 
+                                        <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do items</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-13 todo-list-item' onClick={() => handleEditTodo(item)}>
@@ -286,13 +328,25 @@ export default function TodolistPage() {
                                             <p className='w-1/6 xl:w-1/10'>{item.category_name}</p>
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
                                             <ListItemIcon className='w-1/10 text-[12px]'>
-                                                {item.status === 'completed' && <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" /><p className='ml-2 mt-1'>Completed</p></div>}
-                                                {item.status === 'inprogress' && !isBeforeToday(item.due_date) && <div className='flex'><IncompleteCircleIcon className="text-yellow-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
-                                                {item.status === 'notstarted' && !isBeforeToday(item.due_date) && <div className='flex'><ChecklistIcon className="text-gray-500" /><p className='ml-2 mt-1'>Not Started</p></div>}
-                                                {item.status !== 'completed' && isBeforeToday(item.due_date) && <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" /><p className='ml-2 mt-1'>In Progress</p></div>}
+                                                {item.status === 'completed' && 
+                                                    <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" />
+                                                        <p className='ml-2 mt-1'>Completed</p>
+                                                    </div>}
+                                                {item.status === 'inprogress' && !isBeforeToday(item.due_date) && 
+                                                    <div className='flex'><IncompleteCircleIcon className="text-yellow-500" />
+                                                        <p className='ml-2 mt-1'>In Progress</p>
+                                                    </div>}
+                                                {item.status === 'notstarted' && !isBeforeToday(item.due_date) && 
+                                                    <div className='flex'><ChecklistIcon className="text-gray-500" />
+                                                        <p className='ml-2 mt-1'>Not Started</p>
+                                                    </div>}
+                                                {item.status !== 'completed' && isBeforeToday(item.due_date) && 
+                                                    <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" />
+                                                        <p className='ml-2 mt-1'>In Progress</p>
+                                                    </div>}
                                             </ListItemIcon>
                                             <div className="w-1/10 flex">
-                                                <IconButton onClick={e => { e.stopPropagation(); /* handle delete here */ }} className='!p-0'>
+                                                <IconButton onClick={e => { e.stopPropagation(); handleDeleteTodo(item.id); }} className='!p-0'>
                                                     <DeleteForeverIcon className='text-red-600'></DeleteForeverIcon>
                                                 </IconButton>
                                             </div>                                           
@@ -306,6 +360,19 @@ export default function TodolistPage() {
                     {dialogOpen && (
                         <AddEditTodoPage open={true} onClose={handleCloseDialog} todoData={dialogData}></AddEditTodoPage>
                     )}
+                    {/* Delete Confirmation Dialog */}                    
+                    <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>
+                        <div className='pr-4 pt-2 pb-4'>
+                            <DialogTitle className='!text-xl !mb-2 text-secondary'>Delete To-Do</DialogTitle>
+                            <DialogContent>
+                                Are you sure you want to delete this to-do?
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleCancelDelete} color="secondary">Cancel</Button>
+                                <Button onClick={handleConfirmDelete} color="secondary" variant="contained">Delete</Button>
+                            </DialogActions>
+                        </div>
+                    </Dialog>                    
                 </div>
             </div>
         </ThemeProvider>

@@ -46,3 +46,18 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ error: 'Failed to update to-do' }, { status: 500 });
     }
 }
+
+export async function DELETE(req: NextRequest) {
+    try {
+        const body = await req.json();
+        if (!body.id) {
+            return NextResponse.json({ error: 'Missing to-do id' }, { status: 400 });
+        }
+        const sql = `DELETE FROM user_todos WHERE id = $1`;
+        await ExecuteSQL(sql, [body.id]);
+        return NextResponse.json({ success: true, message: 'To-do deleted' }, { status: 200 });
+    } catch (err) {
+        console.error('Failed to delete to-do:', err);
+        return NextResponse.json({ error: 'Failed to delete to-do' }, { status: 500 });
+    }
+}

@@ -20,7 +20,7 @@ export async function GET() {
 
     // Send notifications for today's todos
     await Promise.all(
-      todosToday.map(element =>
+      todosToday.map((element: { summary: string; }) =>
         sendNotification('You have a todo due today:' + element.summary, subscriptions)
       )
     );
