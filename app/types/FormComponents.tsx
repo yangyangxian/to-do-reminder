@@ -16,13 +16,13 @@ export const YTextField: React.FC<CustomTextFieldProps> = ({
   return (
     <div className={`flex flex-col`}>
       {label && (
-        <label className="mb-1 text-sm font-medium text-gray-700">
+        <label className="mb-1 text-sm font-medium text-gray-600">
           {label}
         </label>
       )}
       <input
         {...props}
-        className={`h-[35px] bg-[rgb(233,235,240)] hover:shadow-lg focus:bg-white border-gray-300 rounded-md px-3 py-2 
+        className={`h-[35px] bg-[rgb(233,235,240)] text-gray-700 hover:shadow-lg focus:bg-white border-gray-300 rounded-md px-3 py-2 
           text-[14px] focus:outline-[rgb(156,39,176)] focus:outline-2 ${className}`}
       />
       {error && (
@@ -64,7 +64,7 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
         value={value}
         onChange={onChange}
         color="secondary"
-        className={`!w-100 !h-[43px] !text-gray-600 hover:shadow-lg bg-gray-50 !border-gray-300 !rounded-md ${className}`}
+        className={`!w-100 !h-[43px] !text-gray-700 hover:shadow-lg bg-gray-50 !border-gray-300 !rounded-md ${className}`}
         size="small"
         {...props}
         sx={{
@@ -82,6 +82,7 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
           },
           '& .MuiSelect-select': {
             fontSize: '14px', // Ensures the selected value uses this size
+            fontColor: '#364153', // Text color
           },
         }}
       >

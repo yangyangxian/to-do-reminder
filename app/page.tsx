@@ -320,7 +320,7 @@ export default function TodolistPage() {
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
                                     { new Date(item.due_date).toDateString() == new Date().toDateString() && 
-                                        <ListSubheader className='border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
+                                        <ListSubheader className='!text-gray-800 border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
                                     { filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id && 
                                         <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do Items</ListSubheader>}
                                     <Divider className='border-gray-300' />
