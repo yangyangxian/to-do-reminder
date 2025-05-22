@@ -190,7 +190,7 @@ export default function TodolistPage() {
     useEffect(() => {
         if (filteredToDos.length === 0 || !listRef.current) return;
         
-        const pastIndexes = filteredToDos.filter(item => isBeforeToday(item.due_date) || isToday(item.due_date));
+        const pastIndexes = filteredToDos.filter(item => isBeforeToday(item.due_date));
 
         if (pastIndexes.length > 2) {
             const listNode = listRef.current;
@@ -305,10 +305,10 @@ export default function TodolistPage() {
                     <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>
 
                         <ListItem key='0' className='h-11 bg-[rgb(235,237,242)] rounded-t-lg border-1 border-b-0 border-gray-300 !text-gray-900'>
-                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>Due Date</p>
-                            <p className='w-1/6 xl:w-1/10'>Category</p>
-                            <p className='w-1/2 2xl:w-2/5'>Summary</p>
-                            <p className='w-1/10'>Status</p>
+                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/10'>Due Date</p>
+                            <p className='w-1/5 xl:w-1/8'>Status</p>
+                            <p className='w-1/8 md:w-1/10'>Category</p>
+                            <p className='w-1/2 md:w-9/20 2xl:w-2/5'>Summary</p>
                             <div className="w-1/10 flex justify-center">
                                 <p>Actions</p>
                             </div>
@@ -319,17 +319,16 @@ export default function TodolistPage() {
                             className='bg-white border-b-[1px] border-x-1 rounded-b-lg border-gray-300'>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
-                                    { new Date(item.due_date).toDateString() == new Date().toDateString() && 
+                                    { filteredToDos.filter(item => new Date(item.due_date).getDate() == new Date().getDate()) &&
+                                        filteredToDos.filter(item => new Date(item.due_date).getDate() == new Date().getDate())[0].id == item.id  && 
                                         <ListSubheader className='!text-gray-800 border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
                                     { filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id && 
                                         <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do Items</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
                                         <ListItemButton className='h-13 todo-list-item' onClick={() => handleEditTodo(item)}>
-                                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/11'>{item.due_date}</p>
-                                            <p className='w-1/6 xl:w-1/10'>{item.category_name}</p>
-                                            <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
-                                            <ListItemIcon className='w-1/10 text-[12px]'>
+                                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/10'>{item.due_date}</p>
+                                            <ListItemIcon className='w-1/5 xl:w-1/8 text-[12px]'>
                                                 {item.status === 'completed' && 
                                                     <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" />
                                                         <p className='ml-2 mt-1'>Completed</p>
@@ -347,6 +346,8 @@ export default function TodolistPage() {
                                                         <p className='ml-2 mt-1'>In Progress</p>
                                                     </div>}
                                             </ListItemIcon>
+                                            <p className='w-1/8 md:w-1/10'>{item.category_name}</p>
+                                            <p className='w-1/2 md:w-9/20 2xl:w-2/5'>{item.summary}</p>
                                             <div className="w-1/10 flex justify-center">
                                                 <IconButton onClick={e => { e.stopPropagation(); handleDeleteTodo(item.id); }} className='!p-0'>
                                                     <DeleteForeverIcon className='text-red-600'></DeleteForeverIcon>

@@ -1,5 +1,4 @@
 import { ExecuteSQL, getAllTodos } from '@/app/dataAccess/dataAccess';
-import { FormatDate } from '@/app/utilities/formatHelper';
 import dayjs from 'dayjs';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -8,7 +7,7 @@ export async function GET(req: NextRequest) {
         var data = await getAllTodos();
         const formattedData = data.map((item: any) => ({
             ...item,
-            due_date: item.due_date ? FormatDate(item.due_date) : null,
+            due_date: item.due_date ? dayjs(item.due_date).format("YYYY/MM/DD") : null,
         }));
         
         return NextResponse.json({ success: true, data: formattedData, status: 200 });

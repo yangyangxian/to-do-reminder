@@ -16,7 +16,7 @@ interface AddEditTodoPageProps {
 const inputCommonClasses = '!h-[43px] border-1 border-gray-300 bg-gray-50';
 
 export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTodoPageProps) {
-    const initialTodo = todoData || { summary: '', dueDate: '', category: '', status: 'notstarted' };
+    const initialTodo = todoData || { summary: '', dueDate: dayjs(Date.now()).format('YYYY/MM/DD'), category: '', status: 'notstarted' };
     const [newTodo, setNewTodo] = useState(initialTodo);
     console.log('newTodo:', newTodo);
     // Reset form when dialog is closed
@@ -65,8 +65,8 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
                                 className = {inputCommonClasses}
                                 label="Due Date"
                                 type="date"
-                                disabled={newTodo.status === 'completed'}                                
                                 value={newTodo.dueDate=='' ? dayjs(Date.now()).format('YYYY-MM-DD') : dayjs(newTodo.dueDate).format('YYYY-MM-DD')}
+                                disabled={newTodo.status == 'completed'}                                
                                 onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
                             />
                         </div>

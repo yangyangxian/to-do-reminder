@@ -1,5 +1,4 @@
 "use server";
-import { FormatDate } from "@/app/utilities/formatHelper";
 import { neon } from "@neondatabase/serverless";
 
 // Use a singleton for the Neon client to avoid creating a new connection on every request (especially in dev)
@@ -8,11 +7,6 @@ if (!(globalThis as any)._neonClient) {
     (globalThis as any)._neonClient = neon(process.env.DATABASE_URL!);
 }
 sql = (globalThis as any)._neonClient;
-
-export async function getTodayTodos() {
-    const data = await ExecuteSQL("SELECT * FROM user_todos where due_date = $1;", [FormatDate(new Date())]);
-    return data;
-}
 
 export async function getUncompleteTodosBefore(date: string) {
     const data = await ExecuteSQL("SELECT * FROM user_todos where due_date < $1 and status != 'completed';", [date]);
