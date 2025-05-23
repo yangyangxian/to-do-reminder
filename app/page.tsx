@@ -63,6 +63,7 @@ export default function TodolistPage() {
     const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string ; category: string; status: string; }>();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [todoIdToDelete, setTodoIdToDelete] = useState<number | null>(null);
+    const [notifLoading, setNotifLoading] = useState(false);
 
     const listRef = React.useRef<HTMLDivElement>(null);
 
@@ -209,10 +210,10 @@ export default function TodolistPage() {
 
     const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
         try {
+            setNotifLoading(true);
             var checked = event.target.checked;
             if (!checked) {
                 setSubscribed(checked);
-
                 try {
                     if (subscription) {
                         console.log('Subsritption unsubscribed');
@@ -296,6 +297,8 @@ export default function TodolistPage() {
             }
         } catch (err) {
             console.error('Action failed', err);
+        } finally {
+            setNotifLoading(false);
         }
     };
     
@@ -320,7 +323,9 @@ export default function TodolistPage() {
                         </div>
                         <div className='flex ml-auto items-center'>
                             <Switch color='secondary' checked={subscribed}
-                                    onChange={handleSubscribe}></Switch><p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Device</p>
+                                    onChange={handleSubscribe} disabled={notifLoading}></Switch>
+                            {notifLoading && <CircularProgress size={18} color='secondary' className='ml-1 mr-2' />}
+                            <p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Device</p>
                         </div>
                     </div>
 
@@ -337,7 +342,7 @@ export default function TodolistPage() {
                         </ListItem>
 
                         <List ref={listRef} disablePadding component="nav" 
-                            sx={{ maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }} 
+                            sx={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }} 
                             className='bg-white border-b-[1px] border-x-1 rounded-b-lg border-gray-300'>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
