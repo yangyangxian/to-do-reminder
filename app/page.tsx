@@ -125,12 +125,7 @@ export default function TodolistPage() {
     };
     
     useEffect(() => {
-        fetch('/api/todos').then((res) => res.json())
-            .then((data) => {
-                var todos = data.data;
-                setLoading(false);
-                setToDos(todos);
-            });
+        fetchTodos();
 
         fetch('/api/usersubscriptions').then((res) => res.json())
             .then(async (data) => {
@@ -165,18 +160,29 @@ export default function TodolistPage() {
         // Listen for refresh-todos event
         const refreshHandler = () => {
             setLoading(true);
-            fetch('/api/todos').then((res) => res.json())
-                .then((data) => {
-                    var todos = data.data;
-                    setLoading(false);
-                    setToDos(todos);
-                });
+            fetchTodos();
         };
         window.addEventListener('refresh-todos', refreshHandler);
         return () => {
             window.removeEventListener('refresh-todos', refreshHandler);
         };
     }, []);
+
+    function fetchTodos() {
+        fetch('/api/todos')
+            .then((res) => res.json())
+            .then((data) => {
+                var todos = data.data;
+                setLoading(false);
+                // Move completed to-dos to the top, then order by due date within each group
+                var orderedTodos = todos.sort((a: any, b: any) => {
+                    if (a.status === 'completed' && b.status !== 'completed') return -1;
+                    if (a.status !== 'completed' && b.status === 'completed') return 1;
+                    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+                });
+                setToDos(orderedTodos);
+            });
+    }
 
     useEffect(() => {
         const lowercased = serchValue.toLowerCase();
