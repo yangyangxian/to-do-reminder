@@ -31,11 +31,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, status: 409 });
         }
 
-        var sqlQuery = 'INSERT INTO user_subscriptions (UserId, Endpoint, Keys) VALUES (1, $1, $2);';
+        var sqlQuery = 'INSERT INTO user_subscriptions (UserId, Endpoint, Keys, device_name, origin_url) VALUES (1, $1, $2, $3, $4);';
 
         var data = await ExecuteSQL(sqlQuery, [
             subscription.endpoint,
-            JSON.stringify(subscription.keys)
+            JSON.stringify(subscription.keys),
+            subscription.deviceName,
+            subscription.originUrl
         ]); 
 
         if (data.length > 0) {

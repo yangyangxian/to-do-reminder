@@ -245,7 +245,6 @@ export default function TodolistPage() {
                 else 
                 {
                     try {
-                        //change the button first to improve the user experience
                         setSubscribed(checked);
                         const registration = await navigator.serviceWorker.ready;
                         let subOfCurrentBrowser = await registration.pushManager.getSubscription();
@@ -259,12 +258,29 @@ export default function TodolistPage() {
                             });
                         }
 
+                        // Add device and URL info
+                        let deviceName = window.navigator.userAgent;
+                        const navAny = window.navigator as any;
+                        if (navAny.userAgentData) {
+                            const brands = navAny.userAgentData.brands
+                                .map((b: any) => b.brand + ' ' + b.version)
+                                .join(', ');
+                            const platform = navAny.userAgentData.platform;
+                            deviceName = `${platform} (${brands})`;
+                        }
+                        const originUrl = window.location.origin;
+                        const subscriptionPayload = {
+                            ...subOfCurrentBrowser.toJSON(),
+                            deviceName,
+                            originUrl,
+                        };
+
                         const response = await fetch('/api/usersubscriptions', {
                             method: 'POST',
                             headers: {
                             'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify(subOfCurrentBrowser),
+                            body: JSON.stringify(subscriptionPayload),
                         });
     
                         setSubscription(subOfCurrentBrowser);
