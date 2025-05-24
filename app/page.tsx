@@ -32,7 +32,7 @@ function urlBase64ToUint8Array(base64String: string) {
     return Uint8Array.from(
       [...rawData].map(char => char.charCodeAt(0))
     )
-  }
+}
 
 function initSW() {
     if (typeof window === 'undefined') return; // Ensure this runs only in the browser
@@ -325,7 +325,7 @@ export default function TodolistPage() {
                             <Switch color='secondary' checked={subscribed}
                                     onChange={handleSubscribe} disabled={notifLoading}></Switch>
                             {notifLoading && <CircularProgress size={18} color='secondary' className='ml-1 mr-2' />}
-                            <p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Device</p>
+                            <p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Client</p>
                         </div>
                     </div>
 
