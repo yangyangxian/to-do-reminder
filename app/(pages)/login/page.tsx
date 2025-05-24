@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button, TextField, CircularProgress, Paper, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { YTextField } from "../types/FormComponents";
+import { YTextField } from "../../types/FormComponents";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

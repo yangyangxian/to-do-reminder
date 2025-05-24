@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button, CircularProgress, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { YTextField } from "../types/FormComponents";
+import { YTextField } from "../../types/FormComponents";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
