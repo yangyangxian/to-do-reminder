@@ -7,7 +7,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Button, CircularProgress, IconButton, ListSubheader, Switch, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { YTextField } from '@/app/types/FormComponents';
+import { YTextField } from '@/app/components/FormComponents';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';

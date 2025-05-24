@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button, CircularProgress, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { YTextField } from "../../types/FormComponents";
+import { YTextField } from "../../components/FormComponents";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -44,7 +44,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary">
-      <div className="w-5/20 bg-white py-4 px-6 rounded-xl shadow-2xl">
+      <div className="w-5/20 bg-white py-5 px-7 rounded-xl shadow-2xl">
         <div className="mb-6 text-2xl text-center text-secondary">
           Create an Account
         </div>
@@ -81,11 +81,11 @@ export default function SignupPage() {
             color="secondary"
             disabled={loading}
             fullWidth
-            className="!mt-3 !mb-2 !h-11"
+            className="!mt-3 !mb-1 !h-11"
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
           </Button>
-          <Button  className="!text-sm !p-0" color="secondary" variant="text" fullWidth onClick={() => router.push("/login")}>Already have an account? Log in</Button>
+          <Button  className="!text-[12px] !p-0" color="secondary" variant="text" fullWidth onClick={() => router.push("/login")}>Already have an account? Log in</Button>
         </form>
       </div>
     </div>

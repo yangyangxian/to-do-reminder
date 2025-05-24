@@ -16,7 +16,7 @@ export const YTextField: React.FC<CustomTextFieldProps> = ({
   return (
     <div className={`flex flex-col`}>
       {label && (
-        <label className="mb-1 text-sm font-medium text-gray-600">
+        <label className="mb-1 text-sm font-medium text-gray-800">
           {label}
         </label>
       )}
@@ -56,7 +56,7 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
   return (
     <div className="flex flex-col">
       {label && (
-        <label className="mb-1 text-sm font-medium text-gray-700">
+        <label className="mb-1 text-sm font-medium text-gray-800">
           {label}
         </label>
       )}
