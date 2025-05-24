@@ -327,6 +327,20 @@ export default function TodolistPage() {
                             {notifLoading && <CircularProgress size={18} color='secondary' className='ml-1 mr-2' />}
                             <p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Client</p>
                         </div>
+                        <div className='ml-5'>
+                            <Button
+                                color='secondary'
+                                size='medium'
+                                variant='outlined'
+                                className='ml-6'
+                                onClick={async () => {
+                                    await fetch('/api/logout', { method: 'POST' });
+                                    window.location.href = '/login';
+                                }}
+                            >
+                                Logout
+                            </Button>
+                        </div>
                     </div>
 
                     <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>

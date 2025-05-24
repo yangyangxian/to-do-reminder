@@ -1,15 +1,20 @@
 import { ExecuteSQL, getAllTodos } from '@/app/dataAccess/dataAccess';
 import dayjs from 'dayjs';
 import { NextRequest, NextResponse } from 'next/server';
+import { getUserIdFromRequest } from '@/app/utilities/getUserIdFromRequest';
 
 export async function GET(req: NextRequest) {
     try {
-        var data = await getAllTodos();
+        const userId = await getUserIdFromRequest(req);
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        // Use getAllTodos and filter by userId in the query
+        const data = await getAllTodos(userId);
         const formattedData = data.map((item: any) => ({
             ...item,
             due_date: item.due_date ? dayjs(item.due_date).format("YYYY/MM/DD") : null,
         }));
-        
         return NextResponse.json({ success: true, data: formattedData, status: 200 });
     } catch (err) {
         console.error('request failed:', err);
@@ -19,10 +24,14 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
+        const userId = await getUserIdFromRequest(req);
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         const body = await req.json();
-        // Insert new to-do into the database
-        const sql = `INSERT INTO user_todos (summary, due_date, category, status) VALUES ($1, $2, $3, $4)`;
-        await ExecuteSQL(sql, [body.summary, body.dueDate, body.category, body.status]);
+        // Insert new to-do into the database with userId
+        const sql = `INSERT INTO user_todos (summary, due_date, category, status, user_id) VALUES ($1, $2, $3, $4, $5)`;
+        await ExecuteSQL(sql, [body.summary, body.dueDate, body.category, body.status, userId]);
         return NextResponse.json({ success: true, message: 'To-do created' }, { status: 201 });
     } catch (err) {
         console.error('Failed to create to-do:', err);

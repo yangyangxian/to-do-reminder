@@ -13,13 +13,19 @@ export async function getUncompleteTodosBefore(date: string) {
     return data;
 }
 
-export async function getAllTodos() {
-    var data = await ExecuteSQL('SELECT ut.id, ut.summary, ut.due_date, ut.status, ut.notes, ut.category, tc.category_name FROM user_todos ut join todos_category tc on ut.category=tc.id order by ut.due_date asc;');
-    return data;
+export async function getAllTodos(userId?: number) {
+    if (userId) {
+        // Filter todos by userId if provided
+        var data = await ExecuteSQL('SELECT ut.id, ut.summary, ut.due_date, ut.status, ut.notes, ut.category, tc.category_name FROM user_todos ut join todos_category tc on ut.category=tc.id WHERE ut.user_id = $1 order by ut.due_date asc;', [userId]);
+        return data;
+    } else {
+        var data = await ExecuteSQL('SELECT ut.id, ut.summary, ut.due_date, ut.status, ut.notes, ut.category, tc.category_name FROM user_todos ut join todos_category tc on ut.category=tc.id order by ut.due_date asc;');
+        return data;
+    }
 }
 
-export async function getUserSubscriptions() {
-    const data = await ExecuteSQL("SELECT * FROM user_subscriptions where userid = 1;");
+export async function getUserSubscriptions(userId: number) {
+    const data = await ExecuteSQL("SELECT * FROM user_subscriptions where userid = $1;", [userId]);
     return data;
 }
 

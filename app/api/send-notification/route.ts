@@ -2,6 +2,7 @@ import { getUncompleteTodosBefore, getUserSubscriptions } from '@/app/dataAccess
 import { NextRequest, NextResponse } from 'next/server';
 import webPush from 'web-push';
 import dayjs from 'dayjs';
+import { getUserIdFromRequest } from '@/app/utilities/getUserIdFromRequest';
 
 webPush.setVapidDetails(
   'mailto:yangyang07271013@gmail.com',
@@ -9,22 +10,22 @@ webPush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 );
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const userId = await getUserIdFromRequest(req);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const todos = await getUncompleteTodosBefore(dayjs().add(2, 'day').format("YYYY-MM-DD"));
     if (todos.length === 0) {
       return NextResponse.json({ message: "no todos needs to sent today." });
     }
-
-    const subscriptions = await getUserSubscriptions();
-
+    const subscriptions = await getUserSubscriptions(userId);
     await sendNotification('You have upcoming or overdue to-dos.', subscriptions);
-
   } catch (err) {
     console.error('request failed:', err);
     return NextResponse.json({ error: 'request failed' }, { status: 500 });
   }
-  
   return NextResponse.json({ ok: true, status: 200 });
 }
 

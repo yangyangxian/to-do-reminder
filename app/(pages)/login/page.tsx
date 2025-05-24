@@ -11,6 +11,17 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  React.useEffect(() => {
+    // If already authenticated, redirect to /home
+    fetch('/api/login', { method: 'GET' })
+      .then(res => {
+        if (res.status === 200) {
+          router.replace('/home');
+        }
+      })
+      .catch(() => {});
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -24,9 +35,10 @@ export default function LoginPage() {
       });
       if (res.ok) {
         // Redirect to home or dashboard
-        router.push("/");
+        router.push("/home");
       } else {
-        setError("Invalid email or password");
+        const data = await res.json();
+        setError(data.error || "Invalid email or password");
       }
     } catch (err) {
       setError("Login failed. Please try again.");
