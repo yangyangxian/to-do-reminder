@@ -349,8 +349,8 @@ export default function TodolistPage() {
                             <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/10'>Due Date</p>
                             <p className='w-1/5 xl:w-1/8'>Status</p>
                             <p className='w-1/8 md:w-1/10'>Category</p>
-                            <p className='w-1/2 md:w-9/20 2xl:w-2/5'>Summary</p>
-                            <div className="w-1/10 flex justify-center">
+                            <p className='w-1/2 2xl:w-2/5'>Summary</p>
+                            <div className="w-1/10 flex ml-auto justify-center">
                                 <p>Actions</p>
                             </div>
                         </ListItem>
@@ -388,8 +388,8 @@ export default function TodolistPage() {
                                                     </div>}
                                             </ListItemIcon>
                                             <p className='w-1/8 md:w-1/10'>{item.category_name}</p>
-                                            <p className='w-1/2 md:w-9/20 2xl:w-2/5'>{item.summary}</p>
-                                            <div className="w-1/10 flex justify-center">
+                                            <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
+                                            <div className="w-1/10 flex ml-auto justify-center">
                                                 <IconButton onClick={e => { e.stopPropagation(); handleDeleteTodo(item.id); }} className='!p-0'>
                                                     <DeleteForeverIcon className='text-red-600'></DeleteForeverIcon>
                                                 </IconButton>
