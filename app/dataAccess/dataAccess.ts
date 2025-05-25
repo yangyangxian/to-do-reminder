@@ -24,9 +24,11 @@ export async function getAllTodos(userId?: number) {
     }
 }
 
-export async function getUserSubscriptions(userId: number) {
-    const data = await ExecuteSQL("SELECT * FROM user_subscriptions where userid = $1;", [userId]);
-    return data;
+export async function getSubscriptionsByUserIds(userIds: number[]): Promise<any[]> {
+    if (!userIds.length) return [];
+    const placeholders = userIds.map((_, i) => `$${i + 1}`).join(',');
+    const sql = `SELECT * FROM user_subscriptions WHERE userid IN (${placeholders})`;
+    return await ExecuteSQL(sql, userIds);
 }
 
 export async function ExecuteSQL(query: string, p0: any[] = []) {

@@ -1,8 +1,7 @@
-import { getUncompleteTodosBefore, getUserSubscriptions } from '@/app/dataAccess/dataAccess';
-import { NextRequest, NextResponse } from 'next/server';
+import { getSubscriptionsByUserIds, getUncompleteTodosBefore } from '@/app/dataAccess/dataAccess';
+import { NextRequest, NextResponse, userAgent } from 'next/server';
 import webPush from 'web-push';
 import dayjs from 'dayjs';
-import { getUserIdFromRequest } from '@/app/utilities/getUserIdFromRequest';
 
 webPush.setVapidDetails(
   'mailto:yangyang07271013@gmail.com',
@@ -12,16 +11,35 @@ webPush.setVapidDetails(
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = await getUserIdFromRequest(req);
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     const todos = await getUncompleteTodosBefore(dayjs().add(2, 'day').format("YYYY-MM-DD"));
     if (todos.length === 0) {
       return NextResponse.json({ message: "no todos needs to sent today." });
     }
-    const subscriptions = await getUserSubscriptions(userId);
-    await sendNotification('You have upcoming or overdue to-dos.', subscriptions);
+    // Extract unique userIds from todos
+    const userIdsSet = new Set<number>();
+    for (const todo of todos) {
+      const idRaw = todo.user_id;
+      let idNum: number | null = null;
+      if (typeof idRaw === 'string') {
+        const parsed = parseInt(idRaw, 10);
+        idNum = isNaN(parsed) ? null : parsed;
+      } else if (typeof idRaw === 'number') {
+        idNum = idRaw;
+      }
+      if (idNum !== null) {
+        userIdsSet.add(idNum);
+      }
+    }
+    const userIds = Array.from(userIdsSet);
+    if (userIds.length === 0) {
+      return NextResponse.json({ message: "no users to notify." });
+    }
+    // Get all subscriptions for these users in a single query
+    let allSubscriptions: any[] = [];
+    if (userIds.length > 0) {
+      allSubscriptions = await getSubscriptionsByUserIds(userIds);
+    }
+    await sendNotification('You have upcoming or overdue to-dos.', allSubscriptions);
   } catch (err) {
     console.error('request failed:', err);
     return NextResponse.json({ error: 'request failed' }, { status: 500 });
