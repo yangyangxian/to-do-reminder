@@ -44,7 +44,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary">
-      <div className="w-5/20 bg-white py-5 px-7 rounded-xl shadow-2xl">
+      <div className="w-4/5 md:w-2/3 xl:w-5/20 bg-white py-5 px-7 rounded-xl shadow-2xl">
         <div className="mb-6 text-2xl text-center text-secondary">
           Create an Account
         </div>
