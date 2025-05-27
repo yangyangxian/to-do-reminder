@@ -19,26 +19,26 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 const theme = createTheme({
     typography: {
         //Inherite the font from the parent element set by tailwindcss  
-        fontFamily: 'inherit',       
+        fontFamily: 'inherit',
     },
 });
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4)
     const base64 = (base64String + padding)
-      .replace(/-/g, '+')
-      .replace(/_/g, '/')
+        .replace(/-/g, '+')
+        .replace(/_/g, '/')
     const rawData = atob(base64)
     return Uint8Array.from(
-      [...rawData].map(char => char.charCodeAt(0))
+        [...rawData].map(char => char.charCodeAt(0))
     )
 }
 
 function initSW() {
     if (typeof window === 'undefined') return; // Ensure this runs only in the browser
-    
+
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js',{ scope: '/' })
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
             .then((registration) => {
                 console.log('Service Worker registered with scope:', registration.scope);
             })
@@ -60,7 +60,7 @@ export default function TodolistPage() {
     const [filteredToDos, setfilteredToDos] = useState<Array<any>>([]);
     const [loading, setLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string ; category: string; status: string; }>();
+    const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string; category: string; status: string; }>();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [todoIdToDelete, setTodoIdToDelete] = useState<number | null>(null);
     const [notifLoading, setNotifLoading] = useState(false);
@@ -70,9 +70,9 @@ export default function TodolistPage() {
     const handleAddTodo = () => {
         setDialogOpen(true); // Open the dialog
     };
-    
+
     const handleEditTodo = (todo: any) => {
-        const newData = {id:todo.id, summary:todo.summary, category:todo.category, dueDate:todo.due_date, status: todo.status};
+        const newData = { id: todo.id, summary: todo.summary, category: todo.category, dueDate: todo.due_date, status: todo.status };
         setDialogData(newData); // Only set data, do not open dialog here
     }
 
@@ -124,7 +124,7 @@ export default function TodolistPage() {
         setDialogData(undefined); // Reset the dialog data
         setDialogOpen(false); // Close the dialog
     };
-    
+
     useEffect(() => {
         fetchTodos();
 
@@ -140,13 +140,12 @@ export default function TodolistPage() {
                     return;
                 }
                 const registration = await navigator.serviceWorker.ready;
-                let subOfCurrentBrowser = await registration.pushManager.getSubscription();               
+                let subOfCurrentBrowser = await registration.pushManager.getSubscription();
                 if (!subOfCurrentBrowser) {
                     console.log('No local subscription found. Please register a new one.');
                     return;
                 }
-                if (savedSubstriptions.some((item: { endpoint: string }) => item.endpoint === subOfCurrentBrowser?.endpoint))
-                {
+                if (savedSubstriptions.some((item: { endpoint: string }) => item.endpoint === subOfCurrentBrowser?.endpoint)) {
                     setSubscribed(true);
                     setSubscription(subOfCurrentBrowser);
                 } else {
@@ -189,21 +188,21 @@ export default function TodolistPage() {
         const lowercased = serchValue.toLowerCase();
 
         const newList = toDos.filter(item =>
-          (item.summary.toLowerCase().includes(lowercased) || item.category_name.toLowerCase().includes(lowercased))
+            (item.summary.toLowerCase().includes(lowercased) || item.category_name.toLowerCase().includes(lowercased))
         );
         setfilteredToDos(newList);
     }, [serchValue, toDos]);
 
     useEffect(() => {
         if (filteredToDos.length === 0 || !listRef.current) return;
-        
+
         const pastIndexes = filteredToDos.filter(item => isBeforeToday(item.due_date));
 
         if (pastIndexes.length > 2) {
             const listNode = listRef.current;
             const itemNodes = listNode.querySelectorAll('.todo-list-item');
-            if (itemNodes[pastIndexes.length-2]) {
-                (itemNodes[pastIndexes.length-2] as HTMLDivElement).scrollIntoView({ behavior: 'auto', block: 'start' });        
+            if (itemNodes[pastIndexes.length - 2]) {
+                (itemNodes[pastIndexes.length - 2] as HTMLDivElement).scrollIntoView({ behavior: 'auto', block: 'start' });
             }
         }
     }, [filteredToDos, loading]);
@@ -217,34 +216,32 @@ export default function TodolistPage() {
                 try {
                     if (subscription) {
                         console.log('Subsritption unsubscribed');
-    
+
                         const response = await fetch('/api/usersubscriptions', {
                             method: 'DELETE',
                             headers: {
-                            'Content-Type': 'application/json',
+                                'Content-Type': 'application/json',
                             },
                             body: JSON.stringify(subscription),
                         });
 
                         alert('Unsubscribed successfully');
                         setSubscription(null);
-                    } 
-                    else 
-                    {
+                    }
+                    else {
                         console.log('No subscription found');
                     }
                 } catch (err) {
                     console.error('Failed to unsubscribe:', err);
                     alert('Failed to unsubscribe!');
                     setSubscribed(true);
-                }     
-            } else {  
+                }
+            } else {
                 if (subscription) {
                     console.log('Already has subscription', subscription);
                     setSubscribed(checked);
-                } 
-                else 
-                {
+                }
+                else {
                     try {
                         setSubscribed(checked);
                         const registration = await navigator.serviceWorker.ready;
@@ -252,10 +249,10 @@ export default function TodolistPage() {
 
                         if (!subOfCurrentBrowser) {
                             subOfCurrentBrowser = await registration.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlBase64ToUint8Array(
-                                process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-                            )
+                                userVisibleOnly: true,
+                                applicationServerKey: urlBase64ToUint8Array(
+                                    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+                                )
                             });
                         }
 
@@ -279,20 +276,20 @@ export default function TodolistPage() {
                         const response = await fetch('/api/usersubscriptions', {
                             method: 'POST',
                             headers: {
-                            'Content-Type': 'application/json',
+                                'Content-Type': 'application/json',
                             },
                             body: JSON.stringify(subscriptionPayload),
                         });
-    
+
                         setSubscription(subOfCurrentBrowser);
                         setSubscribed(checked);
-                        
+
                         alert('Subscribed successfully');
                         console.log('Subscribed successfully', subOfCurrentBrowser);
                     } catch (err) {
-                        alert('Failed to get subscription!'); 
-                        setSubscribed(false);  
-                    }                    
+                        alert('Failed to get subscription!');
+                        setSubscribed(false);
+                    }
                 }
             }
         } catch (err) {
@@ -301,19 +298,33 @@ export default function TodolistPage() {
             setNotifLoading(false);
         }
     };
-    
+
     return (
         <ThemeProvider theme={theme}>
-            <div id='backgroundContainer' className='flex min-h-screen w-screen pb-10 bg-[rgb(245,245,245)] text-gray-800 font-sans'> 
-                <div id='contentContainer' className='w-4/5 mx-auto'>
-                    
+
+            {/* Main content with top padding to avoid overlap */}
+            <div id='backgroundContainer' className='flex min-h-screen w-screen bg-[rgb(245,245,245)] text-gray-800 font-sans'>
+
+                <div className="fixed w-full h-11 bg-secondary text-white flex items-center px-6 shadow z-50">
+                    <div className="font-bold text-lg tracking-wide flex items-center">
+                        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2l4-4" /><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /></svg>
+                        To-Do Reminder
+                    </div>
+                    <div className="text-sm font-medium">
+                        {/* Optionally show user email if available in localStorage/cookie */}
+                        {typeof window !== 'undefined' && (localStorage.getItem('user_email') || '')}
+                    </div>
+                </div>
+
+                <div id='contentContainer' className='w-4/5 mx-auto mt-5 min-max-[calc(100vh-48px)]'>
+
                     <div id='header' className='flex w-auto h-22 p-1 mb-6 items-end'>
                         <div className='flex items-center'>
                             <p className='text-xl md:text-4xl'>To-Dos</p>
                             <div className='ml-5'>
                                 <Button color='secondary' size='medium' variant="contained" onClick={handleAddTodo}>Add a To-do</Button>
                             </div>
-                            <div className='ml-5'>                              
+                            <div className='ml-5'>
                                 <YTextField
                                     placeholder="Search"
                                     value={serchValue}
@@ -323,7 +334,7 @@ export default function TodolistPage() {
                         </div>
                         <div className='flex ml-auto items-center'>
                             <Switch color='secondary' checked={subscribed}
-                                    onChange={handleSubscribe} disabled={notifLoading}></Switch>
+                                onChange={handleSubscribe} disabled={notifLoading}></Switch>
                             {notifLoading && <CircularProgress size={18} color='secondary' className='ml-1 mr-2' />}
                             <p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Client</p>
                         </div>
@@ -355,56 +366,56 @@ export default function TodolistPage() {
                             </div>
                         </ListItem>
 
-                        <List ref={listRef} disablePadding component="nav" 
-                            sx={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }} 
+                        <List ref={listRef} disablePadding component="nav"
+                            sx={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}
                             className='bg-white border-b-[1px] border-x-1 rounded-b-lg border-gray-300'>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
-                                    { filteredToDos.filter(item => new Date(item.due_date).getDate() == new Date().getDate()).length > 0 &&
-                                        filteredToDos.filter(item => new Date(item.due_date).getDate() == new Date().getDate())[0].id == item.id  && 
+                                    {filteredToDos.filter(item => new Date(item.due_date).getDate() == new Date().getDate()).length > 0 &&
+                                        filteredToDos.filter(item => new Date(item.due_date).getDate() == new Date().getDate())[0].id == item.id &&
                                         <ListSubheader className='!text-gray-800 border-gray-300 border-t-[1px] !bg-gray-50'>Today</ListSubheader>}
-                                    { filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id && 
+                                    {filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id &&
                                         <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do Items</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='border-gray-300 font-light'>
-                                        <ListItemButton className='h-13 todo-list-item' onClick={() => handleEditTodo(item)}>
-                                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/10'>{item.due_date}</p>
-                                            <ListItemIcon className='w-1/5 xl:w-1/8 text-[12px]'>
-                                                {item.status === 'completed' && 
+                                        <ListItemButton className='todo-list-item flex flex-wrap' onClick={() => handleEditTodo(item)}>
+                                            <p className='w-1/3 md:w-1/6 lg:w-1/8 xl:w-1/10'>{item.due_date}</p>
+                                            <ListItemIcon className='w-1/3 md:w-1/5 xl:w-1/8 text-[12px]'>
+                                                {item.status === 'completed' &&
                                                     <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" />
                                                         <p className='ml-2 mt-1'>Completed</p>
                                                     </div>}
-                                                {item.status === 'inprogress' && !isBeforeToday(item.due_date) && 
+                                                {item.status === 'inprogress' && !isBeforeToday(item.due_date) &&
                                                     <div className='flex'><IncompleteCircleIcon className="text-yellow-500" />
                                                         <p className='ml-2 mt-1'>In Progress</p>
                                                     </div>}
-                                                {item.status === 'notstarted' && !isBeforeToday(item.due_date) && 
+                                                {item.status === 'notstarted' && !isBeforeToday(item.due_date) &&
                                                     <div className='flex'><ChecklistIcon className="text-gray-500" />
                                                         <p className='ml-2 mt-1'>Not Started</p>
                                                     </div>}
-                                                {item.status !== 'completed' && isBeforeToday(item.due_date) && 
+                                                {item.status !== 'completed' && isBeforeToday(item.due_date) &&
                                                     <div className='flex'><ErrorOutlineRoundedIcon className="text-red-500" />
                                                         <p className='ml-2 mt-1'>In Progress</p>
                                                     </div>}
                                             </ListItemIcon>
-                                            <p className='w-1/8 md:w-1/10'>{item.category_name}</p>
+                                            <p className='w-1/3 md:w-1/10'>{item.category_name}</p>
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
                                             <div className="w-1/10 flex ml-auto justify-center">
                                                 <IconButton onClick={e => { e.stopPropagation(); handleDeleteTodo(item.id); }} className='!p-0'>
                                                     <DeleteForeverIcon className='text-red-600'></DeleteForeverIcon>
                                                 </IconButton>
-                                            </div>                                           
+                                            </div>
                                         </ListItemButton>
                                     </ListItem>
                                 </div>
                             ))}
                         </List>
-                        { loading && <div className="flex mt-8 justify-center"><CircularProgress color='secondary' /></div>}
+                        {loading && <div className="flex mt-8 justify-center"><CircularProgress color='secondary' /></div>}
                     </div>
                     {dialogOpen && (
                         <AddEditTodoPage open={true} onClose={handleCloseDialog} todoData={dialogData}></AddEditTodoPage>
                     )}
-                 
+
                     <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>
                         <div className='pr-4 pt-2 pb-4'>
                             <DialogTitle className='!text-xl !mb-2 text-secondary'>Delete To-Do</DialogTitle>
@@ -416,9 +427,9 @@ export default function TodolistPage() {
                                 <Button onClick={handleConfirmDelete} color="secondary" variant="contained">Delete</Button>
                             </DialogActions>
                         </div>
-                    </Dialog>                    
+                    </Dialog>
                 </div>
             </div>
         </ThemeProvider>
-    );        
+    );
 }
