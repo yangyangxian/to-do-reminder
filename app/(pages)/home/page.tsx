@@ -67,14 +67,29 @@ export default function TodolistPage() {
 
     const listRef = React.useRef<HTMLDivElement>(null);
 
-    const handleAddTodo = () => {
-        setDialogOpen(true); // Open the dialog
+    // New: handleSaveTodoClick for add/edit
+    const handleSaveTodoClick = async (todo: any) => {
+        try {
+            const method = todo.id ? 'PUT' : 'POST';
+            const url = '/api/todos';
+            const payload = todo.id ? { ...todo, id: todo.id } : todo;
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json',},
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to save to-do');
+            }
+            // Directly refresh the list after save
+            await fetchTodos();
+        } catch (error) {
+            alert('Error saving to-do');
+            console.error('Error saving to-do:', error);
+        }
+        setDialogOpen(false);
+        setDialogData(undefined);
     };
-
-    const handleEditTodo = (todo: any) => {
-        const newData = { id: todo.id, summary: todo.summary, category: todo.category, dueDate: todo.due_date, status: todo.status };
-        setDialogData(newData); // Only set data, do not open dialog here
-    }
 
     // Show delete confirmation dialog
     const handleDeleteTodo = (todoId: number) => {
@@ -156,16 +171,6 @@ export default function TodolistPage() {
             }).catch((error) => {
                 console.error('Error fetching subscription:', error);
             });
-
-        // Listen for refresh-todos event
-        const refreshHandler = () => {
-            setLoading(true);
-            fetchTodos();
-        };
-        window.addEventListener('refresh-todos', refreshHandler);
-        return () => {
-            window.removeEventListener('refresh-todos', refreshHandler);
-        };
     }, []);
 
     function fetchTodos() {
@@ -299,6 +304,11 @@ export default function TodolistPage() {
         }
     };
 
+    const handleEditTodo = (todo: any) => {
+        const newData = { id: todo.id, summary: todo.summary, category: todo.category, dueDate: todo.due_date, status: todo.status };
+        setDialogData(newData);
+    };
+
     return (
         <ThemeProvider theme={theme}>
 
@@ -322,7 +332,7 @@ export default function TodolistPage() {
                         <div className='flex items-center'>
                             <p className='text-xl md:text-4xl'>To-Dos</p>
                             <div className='ml-5'>
-                                <Button color='secondary' size='medium' variant="contained" onClick={handleAddTodo}>Add a To-do</Button>
+                                <Button color='secondary' size='medium' variant="contained" onClick={() => setDialogOpen(true)}>Add a To-do</Button>
                             </div>
                             <div className='ml-5'>
                                 <YTextField
@@ -413,7 +423,7 @@ export default function TodolistPage() {
                         {loading && <div className="flex mt-8 justify-center"><CircularProgress color='secondary' /></div>}
                     </div>
                     {dialogOpen && (
-                        <AddEditTodoPage open={true} onClose={handleCloseDialog} todoData={dialogData}></AddEditTodoPage>
+                        <AddEditTodoPage open={true} onClose={handleCloseDialog} todoData={dialogData} onSave={handleSaveTodoClick} />
                     )}
 
                     <Dialog open={deleteDialogOpen} onClose={handleCancelDelete}>

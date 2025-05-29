@@ -11,11 +11,12 @@ interface AddEditTodoPageProps {
     todoData?: { summary: string; dueDate: string ; category: string; status: string; id?: string };
     open: boolean; 
     onClose: () => void; 
+    onSave: (todo: any) => void; // new prop
 }
 
 const inputCommonClasses = '!h-[43px] border-1 border-gray-300 bg-gray-50';
 
-export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTodoPageProps) {
+export default function AddEditTodoPage({ todoData, open, onClose, onSave }: AddEditTodoPageProps) {
     const initialTodo = todoData || { summary: '', dueDate: dayjs(Date.now()).format('YYYY/MM/DD'), category: '', status: 'notstarted' };
     const [newTodo, setNewTodo] = useState(initialTodo);
     console.log('newTodo:', newTodo);
@@ -25,31 +26,6 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
             setNewTodo(initialTodo);
         }
     }, [open, todoData]);
-
-    const handleSave = async () => {
-        try {
-            const method = todoData && todoData.id ? 'PUT' : 'POST';
-            const url = '/api/todos';
-            const payload = todoData && todoData.id ? { ...newTodo, id: todoData.id } : newTodo;
-            console.log('payload:', payload);
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to save to-do');
-            }
-            // Refresh the to-do list in the parent by dispatching a custom event
-            const event = new CustomEvent('refresh-todos');
-            window.dispatchEvent(event);
-        } catch (error) {
-            console.error('Error saving to-do:', error);
-        }
-        onClose();
-    };
 
     return (
         <Dialog open={open} onClose={onClose}>
@@ -107,7 +83,7 @@ export default function AddEditTodoPage({ todoData, open, onClose  }: AddEditTod
             <div className='mb-4 mr-6'>
                 <DialogActions>
                     <Button color='secondary' onClick={onClose}>Cancel</Button>
-                    <Button color='secondary' variant='contained' onClick={handleSave}>Save</Button>
+                    <Button color='secondary' variant='contained' onClick={() => { onSave(newTodo); }}>Save</Button>
                 </DialogActions>
             </div>
         </Dialog>
