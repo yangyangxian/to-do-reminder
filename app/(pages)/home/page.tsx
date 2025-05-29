@@ -6,15 +6,17 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Button, CircularProgress, IconButton, ListSubheader, Switch, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Button, CircularProgress, IconButton, ListSubheader, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { YTextField } from '@/app/components/FormComponents';
 import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import IncompleteCircleIcon from '@mui/icons-material/IncompleteCircle';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
-import { isBeforeToday, isToday } from '@/app/utilities/compareHelper';
+import { isBeforeToday } from '@/app/utilities/compareHelper';
 import AddEditTodoPage from '@/app/pageControls/AddEditTodoPage';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { usePushSubscription } from '@/app/hooks/usePushSubscription';
+import Switch from '@mui/material/Switch';
 
 const theme = createTheme({
     typography: {
@@ -22,17 +24,6 @@ const theme = createTheme({
         fontFamily: 'inherit',
     },
 });
-
-function urlBase64ToUint8Array(base64String: string) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4)
-    const base64 = (base64String + padding)
-        .replace(/-/g, '+')
-        .replace(/_/g, '/')
-    const rawData = atob(base64)
-    return Uint8Array.from(
-        [...rawData].map(char => char.charCodeAt(0))
-    )
-}
 
 function initSW() {
     if (typeof window === 'undefined') return; // Ensure this runs only in the browser
@@ -54,8 +45,6 @@ initSW();
 
 export default function TodolistPage() {
     const [serchValue, setSerchValue] = useState("");
-    const [subscribed, setSubscribed] = useState(false);
-    const [subscription, setSubscription] = useState<PushSubscription | null>(null);
     const [toDos, setToDos] = useState<Array<any>>([]);
     const [filteredToDos, setfilteredToDos] = useState<Array<any>>([]);
     const [loading, setLoading] = useState(true);
@@ -63,7 +52,8 @@ export default function TodolistPage() {
     const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string; category: string; status: string; }>();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [todoIdToDelete, setTodoIdToDelete] = useState<number | null>(null);
-    const [notifLoading, setNotifLoading] = useState(false);
+
+    const { subscribed, notifLoading, handleSubscribe } = usePushSubscription();
 
     const listRef = React.useRef<HTMLDivElement>(null);
 
@@ -142,35 +132,6 @@ export default function TodolistPage() {
 
     useEffect(() => {
         fetchTodos();
-
-        fetch('/api/usersubscriptions').then((res) => res.json())
-            .then(async (data) => {
-                if (!data.success) {
-                    console.log('Subscription fetching failed.');
-                    return;
-                }
-                var savedSubstriptions: Array<{ endpoint: string }> = data.data;
-                if (!savedSubstriptions || savedSubstriptions.length == 0) {
-                    console.log('No saved subscription found');
-                    return;
-                }
-                const registration = await navigator.serviceWorker.ready;
-                let subOfCurrentBrowser = await registration.pushManager.getSubscription();
-                if (!subOfCurrentBrowser) {
-                    console.log('No local subscription found. Please register a new one.');
-                    return;
-                }
-                if (savedSubstriptions.some((item: { endpoint: string }) => item.endpoint === subOfCurrentBrowser?.endpoint)) {
-                    setSubscribed(true);
-                    setSubscription(subOfCurrentBrowser);
-                } else {
-                    setSubscribed(false);
-                    setSubscription(null);
-                    console.log('No matching subscription found in the database.');
-                }
-            }).catch((error) => {
-                console.error('Error fetching subscription:', error);
-            });
     }, []);
 
     function fetchTodos() {
@@ -212,98 +173,6 @@ export default function TodolistPage() {
         }
     }, [filteredToDos, loading]);
 
-    const handleSubscribe = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        try {
-            setNotifLoading(true);
-            var checked = event.target.checked;
-            if (!checked) {
-                setSubscribed(checked);
-                try {
-                    if (subscription) {
-                        console.log('Subsritption unsubscribed');
-
-                        const response = await fetch('/api/usersubscriptions', {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(subscription),
-                        });
-
-                        alert('Unsubscribed successfully');
-                        setSubscription(null);
-                    }
-                    else {
-                        console.log('No subscription found');
-                    }
-                } catch (err) {
-                    console.error('Failed to unsubscribe:', err);
-                    alert('Failed to unsubscribe!');
-                    setSubscribed(true);
-                }
-            } else {
-                if (subscription) {
-                    console.log('Already has subscription', subscription);
-                    setSubscribed(checked);
-                }
-                else {
-                    try {
-                        setSubscribed(checked);
-                        const registration = await navigator.serviceWorker.ready;
-                        let subOfCurrentBrowser = await registration.pushManager.getSubscription();
-
-                        if (!subOfCurrentBrowser) {
-                            subOfCurrentBrowser = await registration.pushManager.subscribe({
-                                userVisibleOnly: true,
-                                applicationServerKey: urlBase64ToUint8Array(
-                                    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-                                )
-                            });
-                        }
-
-                        // Add device and URL info
-                        let deviceName = window.navigator.userAgent;
-                        const navAny = window.navigator as any;
-                        if (navAny.userAgentData) {
-                            const brands = navAny.userAgentData.brands
-                                .map((b: any) => b.brand + ' ' + b.version)
-                                .join(', ');
-                            const platform = navAny.userAgentData.platform;
-                            deviceName = `${platform} (${brands})`;
-                        }
-                        const originUrl = window.location.origin;
-                        const subscriptionPayload = {
-                            ...subOfCurrentBrowser.toJSON(),
-                            deviceName,
-                            originUrl,
-                        };
-
-                        const response = await fetch('/api/usersubscriptions', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(subscriptionPayload),
-                        });
-
-                        setSubscription(subOfCurrentBrowser);
-                        setSubscribed(checked);
-
-                        alert('Subscribed successfully');
-                        console.log('Subscribed successfully', subOfCurrentBrowser);
-                    } catch (err) {
-                        alert('Failed to get subscription!');
-                        setSubscribed(false);
-                    }
-                }
-            }
-        } catch (err) {
-            console.error('Action failed', err);
-        } finally {
-            setNotifLoading(false);
-        }
-    };
-
     const handleEditTodo = (todo: any) => {
         const newData = { id: todo.id, summary: todo.summary, category: todo.category, dueDate: todo.due_date, status: todo.status };
         setDialogData(newData);
@@ -343,10 +212,16 @@ export default function TodolistPage() {
                             </div>
                         </div>
                         <div className='flex ml-auto items-center'>
-                            <Switch color='secondary' checked={subscribed}
-                                onChange={handleSubscribe} disabled={notifLoading}></Switch>
-                            {notifLoading && <CircularProgress size={18} color='secondary' className='ml-1 mr-2' />}
-                            <p className='text-[12px] lg:text-[15px]'>Allow Reminder To This Client</p>
+                            {/* Push notification subscription switch */}
+                            <Switch
+                                checked={subscribed}
+                                onChange={handleSubscribe}
+                                color="secondary"
+                                disabled={notifLoading}
+                                inputProps={{ 'aria-label': 'Push notification subscription' }}
+                            />
+                            <span className='ml-2 text-sm'>Push Notifications</span>
+                            {notifLoading && <CircularProgress size={18} color='secondary' className='ml-2' />}
                         </div>
                         <div className='ml-5'>
                             <Button
