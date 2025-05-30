@@ -57,7 +57,7 @@ export default function TodolistPage() {
 
     const listRef = React.useRef<HTMLDivElement>(null);
 
-    // New: handleSaveTodoClick for add/edit
+    /* handlers */
     const handleSaveTodoClick = async (todo: any) => {
         try {
             const method = todo.id ? 'PUT' : 'POST';
@@ -113,42 +113,31 @@ export default function TodolistPage() {
         }
     };
 
-    // Cancel delete
     const handleCancelDelete = () => {
         setDeleteDialogOpen(false);
         setTodoIdToDelete(null);
     };
 
+    const handleEditTodo = (todo: any) => {
+        const newData = { id: todo.id, summary: todo.summary, category: todo.category, dueDate: todo.due_date, status: todo.status };
+        setDialogData(newData);
+    };
+
+    const handleCloseDialog = () => {
+        setDialogData(undefined);
+        setDialogOpen(false); 
+    };
+
+    /* useEffect hook */
     useEffect(() => {
         if (dialogData) {
             setDialogOpen(true);
         }
     }, [dialogData]);
 
-    const handleCloseDialog = () => {
-        setDialogData(undefined); // Reset the dialog data
-        setDialogOpen(false); // Close the dialog
-    };
-
     useEffect(() => {
         fetchTodos();
     }, []);
-
-    function fetchTodos() {
-        fetch('/api/todos')
-            .then((res) => res.json())
-            .then((data) => {
-                var todos = data.data;
-                setLoading(false);
-                // Move completed to-dos to the top, then order by due date within each group
-                var orderedTodos = todos.sort((a: any, b: any) => {
-                    if (a.status === 'completed' && b.status !== 'completed') return -1;
-                    if (a.status !== 'completed' && b.status === 'completed') return 1;
-                    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
-                });
-                setToDos(orderedTodos);
-            });
-    }
 
     useEffect(() => {
         const lowercased = serchValue.toLowerCase();
@@ -173,10 +162,22 @@ export default function TodolistPage() {
         }
     }, [filteredToDos, loading]);
 
-    const handleEditTodo = (todo: any) => {
-        const newData = { id: todo.id, summary: todo.summary, category: todo.category, dueDate: todo.due_date, status: todo.status };
-        setDialogData(newData);
-    };
+    /* private functions */
+    function fetchTodos() {
+        fetch('/api/todos')
+            .then((res) => res.json())
+            .then((data) => {
+                var todos = data.data;
+                setLoading(false);
+                // Move completed to-dos to the top, then order by due date within each group
+                var orderedTodos = todos.sort((a: any, b: any) => {
+                    if (a.status === 'completed' && b.status !== 'completed') return -1;
+                    if (a.status !== 'completed' && b.status === 'completed') return 1;
+                    return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+                });
+                setToDos(orderedTodos);
+            });
+    }
 
     return (
         <ThemeProvider theme={theme}>
