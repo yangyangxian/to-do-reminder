@@ -16,8 +16,8 @@ interface AddEditTodoPageProps {
 
 const inputCommonClasses = '!h-[43px] border-1 border-gray-300 bg-gray-50';
 
-export default function AddEditTodoPage({ todoData, open, onClose, onSave }: AddEditTodoPageProps) {
-    const initialTodo = todoData || { summary: '', dueDate: dayjs(Date.now()).format('YYYY/MM/DD'), category: '', status: 'notstarted' };
+export default function AddEditTodoPage(props: AddEditTodoPageProps) {
+    const initialTodo = props.todoData || { summary: '', dueDate: dayjs(Date.now()).format('YYYY/MM/DD'), category: '', status: 'notstarted' };
     const [newTodo, setNewTodo] = useState(initialTodo);
     console.log('newTodo:', newTodo);
     // Reset form when dialog is closed
@@ -25,12 +25,12 @@ export default function AddEditTodoPage({ todoData, open, onClose, onSave }: Add
         if (!open) {
             setNewTodo(initialTodo);
         }
-    }, [open, todoData]);
+    }, [open, props.todoData]);
 
     return (
-        <Dialog open={open} onClose={onClose}>
+        <Dialog open={props.open} onClose={props.onClose}>
             <div className='pt-3 px-5 text-white bg-secondary'>
-                <DialogTitle className='!p-2 !text-[22px]'>{todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
+                <DialogTitle className='!p-2 !text-[22px]'>{props.todoData ? 'Edit To-Do' : 'Add To-Do'}</DialogTitle>
             </div>
 
             <div className='pt-3 px-5'>
@@ -82,8 +82,8 @@ export default function AddEditTodoPage({ todoData, open, onClose, onSave }: Add
             
             <div className='mb-4 mr-6'>
                 <DialogActions>
-                    <Button color='secondary' onClick={onClose}>Cancel</Button>
-                    <Button color='secondary' variant='contained' onClick={() => { onSave(newTodo); }}>Save</Button>
+                    <Button color='secondary' onClick={props.onClose}>Cancel</Button>
+                    <Button color='secondary' variant='contained' onClick={() => { props.onSave(newTodo); }}>Save</Button>
                 </DialogActions>
             </div>
         </Dialog>
