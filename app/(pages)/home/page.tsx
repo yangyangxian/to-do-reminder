@@ -231,7 +231,7 @@ export default function TodolistPage() {
             {/* Main content with top padding to avoid overlap */}
             <div id='backgroundContainer' className='flex min-h-screen w-screen bg-[rgb(245,245,245)] text-gray-800 font-sans'>
 
-                <div className="fixed w-full h-12 bg-secondary text-white flex items-center px-6 shadow z-50">
+                <div className="fixed w-full h-13 bg-secondary text-white flex items-center px-6 shadow z-50">
                     <div className="font-bold text-lg tracking-wide flex items-center">
                         <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2l4-4" /><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /></svg>
                         To-Do Reminder
@@ -242,7 +242,7 @@ export default function TodolistPage() {
                     </div>
                 </div>
 
-                <div id='contentContainer' className='w-4/5 mx-auto mt-5 min-max-[calc(100vh-48px)]'>
+                <div id='contentContainer' className='w-4/5 mx-auto mt-8 min-max-[calc(100vh-48px)]'>
 
                     <div id='header' className='flex w-auto h-22 p-1 mb-6 items-end'>
                         <div className='flex items-center'>
@@ -306,7 +306,7 @@ export default function TodolistPage() {
                                         <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do Items</ListSubheader>}
                                     <Divider className='border-gray-300' />
                                     <ListItem disablePadding className='h-13 border-gray-300 font-light'>
-                                        <ListItemButton className='todo-list-item flex flex-wrap' onClick={() => handleEditTodo(item)}>
+                                        <ListItemButton className='h-full todo-list-item flex flex-wrap' onClick={() => handleEditTodo(item)}>
                                             <div className='w-1/3 md:w-1/6 lg:w-1/8'>
                                                 {editingDateId === item.id ? (
                                                     <YTextField
@@ -329,10 +329,11 @@ export default function TodolistPage() {
                                                         onClick={(e) => handleDateClick(e, item.id, item.due_date)}
                                                         className="hover:text-secondary w-full h-8 flex items-center"
                                                     >
-                                                        <span className="w-22">{dayjs(item.due_date).format('YYYY/MM/DD')}</span>
-                                                        <svg className="w-4 h-4 text-gray-400 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <span className="w-22 mt-[1px] hover:text-secondary">{dayjs(item.due_date).format('YYYY/MM/DD')}</span>
+                                                        {item.status != 'completed' && 
+                                                        <svg className="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
+                                                        </svg>}
                                                     </div>
                                                 )}
                                             </div>
