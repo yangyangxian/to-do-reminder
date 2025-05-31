@@ -145,9 +145,10 @@ export default function TodolistPage() {
     };
 
     const handleDateClick = (e: React.MouseEvent, todoId: number, currentDate: string) => {
-        e.stopPropagation();
         const todo = toDos.find(t => t.id === todoId);
-        if (todo?.status === 'completed') return;
+        if (todo.status === 'completed') return;
+
+        e.stopPropagation();
 
         setEditingDateValue(dayjs(currentDate).format('YYYY-MM-DD'));
         setEditingDateId(todoId);
@@ -228,10 +229,9 @@ export default function TodolistPage() {
     return (
         <ThemeProvider theme={theme}>
 
-            {/* Main content with top padding to avoid overlap */}
             <div id='backgroundContainer' className='flex min-h-screen w-screen bg-[rgb(245,245,245)] text-gray-800 font-sans'>
 
-                <div className="fixed w-full h-13 bg-secondary text-white flex items-center px-6 shadow z-50">
+                <div className="fixed w-full h-13 bg-secondary text-white flex items-center px-6 shadow">
                     <div className="font-bold text-lg tracking-wide flex items-center">
                         <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2l4-4" /><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /></svg>
                         To-Do Reminder
@@ -242,13 +242,12 @@ export default function TodolistPage() {
                     </div>
                 </div>
 
-                <div id='contentContainer' className='w-4/5 mx-auto mt-8 min-max-[calc(100vh-48px)]'>
+                <div id='contentContainer' className='w-full sm:w-4/5 mx-auto pt-8 min-max-[calc(100vh-48px)]'>
 
-                    <div id='header' className='flex w-auto h-22 p-1 mb-6 items-end'>
+                    <div id='header' className='w-auto h-22 flex flex-wrap p-1 mb-6 items-end'>
                         <div className='flex items-center'>
-                            <p className='text-xl md:text-4xl'>To-Dos</p>
-                            <div className='ml-5'>
-                                <Button color='secondary' size='medium' variant="contained" onClick={() => setDialogOpen(true)}>Add a To-do</Button>
+                            <div>
+                                <Button color='secondary' sx={{minWidth: '125px'}} size='medium' variant="contained" onClick={() => setDialogOpen(true)}>Add a To-do</Button>
                             </div>
                             <div className='ml-5'>
                                 <YTextField
@@ -258,7 +257,7 @@ export default function TodolistPage() {
                                 />
                             </div>
                         </div>
-                        <div className='flex ml-auto items-center'>
+                        <div className='flex md:ml-auto items-center'>
                             {/* Push notification subscription switch */}
                             <Switch
                                 checked={subscribed}
