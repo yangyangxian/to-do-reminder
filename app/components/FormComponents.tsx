@@ -4,13 +4,15 @@ import MenuItem from '@mui/material/MenuItem';
 
 interface CustomTextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string; // Optional label for the text field
-  error?: string; // Optional error message
+  error?: string;
+  ref?: React.RefObject<HTMLInputElement>;
 }
 
 export const YTextField: React.FC<CustomTextFieldProps> = ({
   label,
   error,
   className,
+  ref,
   ...props
 }) => {
   return (
@@ -21,6 +23,7 @@ export const YTextField: React.FC<CustomTextFieldProps> = ({
         </label>
       )}
       <input
+        ref={ref}
         {...props}
         className={`h-[35px] bg-[rgb(233,235,240)] text-gray-700 hover:shadow-lg focus:bg-white border-gray-300 rounded-md px-3 py-2 
           text-[14px] focus:outline-[rgb(156,39,176)] focus:outline-2 ${className}`}

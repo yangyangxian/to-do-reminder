@@ -17,6 +17,7 @@ import AddEditTodoPage from '@/app/pageControls/AddEditTodoPage';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { usePushSubscription } from '@/app/hooks/usePushSubscription';
 import Switch from '@mui/material/Switch';
+import dayjs from 'dayjs';
 
 const theme = createTheme({
     typography: {
@@ -52,42 +53,36 @@ export default function TodolistPage() {
     const [dialogData, setDialogData] = useState<{ summary: string; dueDate: string; category: string; status: string; }>();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [todoIdToDelete, setTodoIdToDelete] = useState<number | null>(null);
+    const [editingDateId, setEditingDateId] = useState<number | null>(null);
+    const [editingDateValue, setEditingDateValue] = useState<string>("");
 
     const { subscribed, notifLoading, handleSubscribe } = usePushSubscription();
 
     const listRef = React.useRef<HTMLDivElement>(null);
+    const dateInputRef = React.useRef<HTMLInputElement>(null!);
+
+    //computed properties
+    const upcomingToDos = (() => {
+        return toDos.filter(item => new Date(item.due_date) >= new Date() && item.status != 'completed');
+    });
+    const pastAndDoneTodos = (() => {
+        return toDos.filter(item => new Date(item.due_date) < new Date() || item.status == 'completed');
+    });
 
     /* handlers */
     const handleSaveTodoClick = async (todo: any) => {
-        try {
-            const method = todo.id ? 'PUT' : 'POST';
-            const url = '/api/todos';
-            const payload = todo.id ? { ...todo, id: todo.id } : todo;
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json',},
-                body: JSON.stringify(payload),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to save to-do');
-            }
-            // Directly refresh the list after save
-            await fetchTodos();
-        } catch (error) {
-            alert('Error saving to-do');
-            console.error('Error saving to-do:', error);
-        }
+        await saveTodo(todo);
+        await fetchTodos();
+
         setDialogOpen(false);
         setDialogData(undefined);
     };
 
-    // Show delete confirmation dialog
-    const handleDeleteTodo = (todoId: number) => {
+    const handleShowDeleteDialog = (todoId: number) => {
         setTodoIdToDelete(todoId);
         setDeleteDialogOpen(true);
     };
 
-    // Confirm delete
     const handleConfirmDelete = async () => {
         if (todoIdToDelete == null) return;
         try {
@@ -128,6 +123,38 @@ export default function TodolistPage() {
         setDialogOpen(false); 
     };
 
+    const handleInlineDateEdit = async (todoId: number, newDate: string) => {
+        try {
+            const todo = toDos.find(t => t.id === todoId);
+            if (!todo) return;
+            console.log(newDate)
+            if (newDate == dayjs(todo.due_date).format('YYYY-MM-DD')) {
+                setEditingDateId(null);
+                return;
+            }  
+
+            todo.dueDate = newDate;
+            await saveTodo(todo);
+
+            await fetchTodos();
+            setEditingDateId(null);
+        } catch (error) {
+            console.error('Error updating due date:', error);
+            alert('Failed to update due date');
+        }
+    };
+
+    const handleDateClick = (e: React.MouseEvent, todoId: number, currentDate: string) => {
+        e.stopPropagation();
+        const todo = toDos.find(t => t.id === todoId);
+        if (todo?.status === 'completed') return;
+
+        setEditingDateValue(dayjs(currentDate).format('YYYY-MM-DD'));
+        setEditingDateId(todoId);
+        
+        setTimeout(() => dateInputRef.current?.showPicker(), 50);
+    };
+
     /* useEffect hook */
     useEffect(() => {
         if (dialogData) {
@@ -151,16 +178,16 @@ export default function TodolistPage() {
     useEffect(() => {
         if (filteredToDos.length === 0 || !listRef.current) return;
 
-        const pastIndexes = filteredToDos.filter(item => isBeforeToday(item.due_date));
+        const pastTodos = pastAndDoneTodos();
 
-        if (pastIndexes.length > 2) {
+        if (pastTodos.length > 2) {
             const listNode = listRef.current;
             const itemNodes = listNode.querySelectorAll('.todo-list-item');
-            if (itemNodes[pastIndexes.length - 2]) {
-                (itemNodes[pastIndexes.length - 2] as HTMLDivElement).scrollIntoView({ behavior: 'auto', block: 'start' });
+            if (itemNodes[pastTodos.length - 2]) {
+                (itemNodes[pastTodos.length - 2] as HTMLDivElement).scrollIntoView({ behavior: 'auto', block: 'start' });
             }
         }
-    }, [filteredToDos, loading]);
+    }, [filteredToDos]);
 
     /* private functions */
     function fetchTodos() {
@@ -179,13 +206,32 @@ export default function TodolistPage() {
             });
     }
 
+    const saveTodo = async (todo: any) => {
+        try {
+            const method = todo.id ? 'PUT' : 'POST';
+            const url = '/api/todos';
+            const payload = todo.id ? { ...todo, id: todo.id } : todo;
+            console.log(payload)
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) throw new Error(`Failed to ${method} to-do`);
+            return await response.json();
+        } catch (error) {
+            console.error(`Error saving to-do:`, error);
+            throw error;
+        }
+    };
+
     return (
         <ThemeProvider theme={theme}>
 
             {/* Main content with top padding to avoid overlap */}
             <div id='backgroundContainer' className='flex min-h-screen w-screen bg-[rgb(245,245,245)] text-gray-800 font-sans'>
 
-                <div className="fixed w-full h-11 bg-secondary text-white flex items-center px-6 shadow z-50">
+                <div className="fixed w-full h-12 bg-secondary text-white flex items-center px-6 shadow z-50">
                     <div className="font-bold text-lg tracking-wide flex items-center">
                         <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2l4-4" /><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /></svg>
                         To-Do Reminder
@@ -219,7 +265,6 @@ export default function TodolistPage() {
                                 onChange={handleSubscribe}
                                 color="secondary"
                                 disabled={notifLoading}
-                                inputProps={{ 'aria-label': 'Push notification subscription' }}
                             />
                             <span className='ml-2 text-sm'>Push Notifications</span>
                             {notifLoading && <CircularProgress size={18} color='secondary' className='ml-2' />}
@@ -242,8 +287,8 @@ export default function TodolistPage() {
 
                     <div id='content' className='min-h-30 border-gray-300 text-[12px] xl:text-[14px]'>
 
-                        <ListItem key='0' className='h-11 bg-[rgb(235,237,242)] rounded-t-lg border-1 border-b-0 border-gray-300 !text-gray-900'>
-                            <p className='w-1/6 md:w-1/6 lg:w-1/8 xl:w-1/10'>Due Date</p>
+                        <ListItem key='0' className='h-12 bg-[rgb(235,237,242)] rounded-t-lg border-1 border-b-0 border-gray-300 !text-gray-900'>
+                            <p className='w-1/6 md:w-1/6 lg:w-1/8'>Due Date</p>
                             <p className='w-1/5 xl:w-1/8'>Status</p>
                             <p className='w-1/8 md:w-1/10'>Category</p>
                             <p className='w-1/2 2xl:w-2/5'>Summary</p>
@@ -257,12 +302,40 @@ export default function TodolistPage() {
                             className='bg-white border-b-[1px] border-x-1 rounded-b-lg border-gray-300'>
                             {filteredToDos.map((item) => (
                                 <div key={item.id}>
-                                    {filteredToDos.filter(item => new Date(item.due_date) > new Date())[0].id == item.id &&
+                                    {upcomingToDos().length > 0 && upcomingToDos()[0].id == item.id &&
                                         <ListSubheader className='border-gray-300 !text-gray-800 border-t-[1px] !bg-gray-50'>Upcoming To-Do Items</ListSubheader>}
                                     <Divider className='border-gray-300' />
-                                    <ListItem disablePadding className='border-gray-300 font-light'>
+                                    <ListItem disablePadding className='h-13 border-gray-300 font-light'>
                                         <ListItemButton className='todo-list-item flex flex-wrap' onClick={() => handleEditTodo(item)}>
-                                            <p className='w-1/3 md:w-1/6 lg:w-1/8 xl:w-1/10'>{item.due_date}</p>
+                                            <div className='w-1/3 md:w-1/6 lg:w-1/8'>
+                                                {editingDateId === item.id ? (
+                                                    <YTextField
+                                                        type="date"
+                                                        ref={dateInputRef as React.RefObject<HTMLInputElement>}
+                                                        value={dayjs(editingDateValue).format('YYYY-MM-DD')}
+                                                        onChange={(e) => setEditingDateValue(e.target.value)}
+                                                        onBlur={() => handleInlineDateEdit(item.id, editingDateValue)}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                handleInlineDateEdit(item.id, editingDateValue);
+                                                            }
+                                                        }}
+                                                        className="!h-8 !w-3/4 !px-2 !text-[13px] border border-gray-300 rounded focus:outline-secondary focus:border-secondary transition-all"
+                                                        autoFocus
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                ) : (
+                                                    <div 
+                                                        onClick={(e) => handleDateClick(e, item.id, item.due_date)}
+                                                        className="hover:text-secondary w-full h-8 flex items-center"
+                                                    >
+                                                        <span className="w-22">{dayjs(item.due_date).format('YYYY/MM/DD')}</span>
+                                                        <svg className="w-4 h-4 text-gray-400 group-hover:text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
                                             <ListItemIcon className='w-1/3 md:w-1/5 xl:w-1/8 text-[12px]'>
                                                 {item.status === 'completed' &&
                                                     <div className='flex'><CheckCircleOutlineRoundedIcon className="text-green-500" />
@@ -284,7 +357,7 @@ export default function TodolistPage() {
                                             <p className='w-1/3 md:w-1/10'>{item.category_name}</p>
                                             <p className='w-1/2 2xl:w-2/5'>{item.summary}</p>
                                             <div className="w-1/10 flex ml-auto justify-center">
-                                                <IconButton onClick={e => { e.stopPropagation(); handleDeleteTodo(item.id); }} className='!p-0'>
+                                                <IconButton onClick={e => { e.stopPropagation(); handleShowDeleteDialog(item.id); }} className='!p-0'>
                                                     <DeleteForeverIcon className='text-red-600'></DeleteForeverIcon>
                                                 </IconButton>
                                             </div>
