@@ -96,9 +96,8 @@ export default function TodolistPage() {
             if (!response.ok) {
                 throw new Error('Failed to delete to-do');
             }
-            // Refresh the to-do list
-            const event = new CustomEvent('refresh-todos');
-            window.dispatchEvent(event);
+            // Directly refresh the list after delete
+            await fetchTodos();
         } catch (error) {
             alert('Error deleting to-do');
             console.error('Error deleting to-do:', error);

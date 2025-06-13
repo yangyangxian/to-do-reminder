@@ -53,7 +53,6 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
   className,
   options,
   value,
-  onChange,
   ...props
 }) => {
   return (
@@ -65,7 +64,6 @@ export const YSelectField: React.FC<CustomSelectFieldProps> = ({
       )}
       <Select
         value={value}
-        onChange={onChange}
         color="secondary"
         className={`!w-100 !h-[43px] !text-gray-700 hover:shadow-lg bg-gray-50 !border-gray-300 !rounded-md ${className}`}
         size="small"

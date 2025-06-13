@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
     // Redirect authenticated users away from /login and /signup to /home
-  console.log('pathname', pathname);
+  console.log('this is middleware', pathname);
   if (pathname === '/login' || pathname === '/signup') {
     const token = req.cookies.get(COOKIE_NAME)?.value;
     if (token) {
